@@ -278,5 +278,10 @@
     "noFocusedSpaceToSearch": "没有聚焦的空间可搜索",
     "indexedSuccess": "已索引 {{indexed}}，已移除 {{removed}}",
     "foundHits": "找到 {{total}} 个匹配 '{{query}}' 的结果"
+  },
+  "browserExtension": {
+    "name": "浏览器插件",
+    "title": "Gitary Companion",
+    "description": "浏览器扩展插件，让您可以在 GitHub、Gitee、GitCode 仓库页面一键跳转到 Gitary"
   }
 }

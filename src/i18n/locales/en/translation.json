@@ -278,5 +278,10 @@
     "noFocusedSpaceToSearch": "No focused space to search",
     "indexedSuccess": "Indexed {{indexed}}, removed {{removed}}",
     "foundHits": "Found {{total}} hits for '{{query}}'"
+  },
+  "browserExtension": {
+    "name": "Browser Extension",
+    "title": "Gitary Companion",
+    "description": "Browser extension that lets you jump to Gitary from GitHub, Gitee, and GitCode repository pages with one click"
   }
 }

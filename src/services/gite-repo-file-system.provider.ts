@@ -62,14 +62,28 @@ export class GitRepoFileSystemProvider implements FileSystemProvider {
     // Use the GiteeClient to fetch the directory contents and return them as an array of [string, FileType] pairs.
 
     const path = uri.path.endsWith("/") ? uri.path : uri.path + "/"; // Extract the path from the Uri
-    const directoryInfo = (
-      await this.gitClient.File.getInfo({
-        owner: this.owner,
-        repo: this.repo,
-        path,
-      })
-    ).data;
-    return directoryInfo.map((item) => [
+    const resp = await this.gitClient.File.getInfo({
+      owner: this.owner,
+      repo: this.repo,
+      path,
+    });
+    const directoryInfo = resp.data as any;
+
+    // Gitee API 可能在某些情况下返回对象而不是数组，这里做一层兼容处理。
+    if (!Array.isArray(directoryInfo)) {
+      if (directoryInfo && typeof directoryInfo === "object" && "name" in directoryInfo && "type" in directoryInfo) {
+        const item = directoryInfo as { name: string; type: string };
+        return [
+          [
+            item.name,
+            item.type === "file" ? FileType.File : FileType.Directory,
+          ],
+        ];
+      }
+      return [];
+    }
+
+    return directoryInfo.map((item: { name: string; type: string }) => [
       item.name,
       item.type === "file" ? FileType.File : FileType.Directory,
     ]);

@@ -4,6 +4,13 @@ export interface AIMessage {
   role: AIRole;
   content: string;
   name?: string;
+  /**
+   * Optional tool_calls field for assistant messages, following
+   * OpenAI ChatCompletionMessageParam semantics. This allows us to
+   * pass structured tool call history back to the model instead of
+   * flattening everything into plain text.
+   */
+  toolCalls?: AIToolCall[];
 }
 
 export interface AIToolDefinition {

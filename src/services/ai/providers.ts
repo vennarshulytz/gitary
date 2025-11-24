@@ -77,6 +77,9 @@ export class OpenAICompatibleProvider implements AIProvider {
           role: "assistant",
           content: message.content,
           name: message.name,
+          // Forward tool_calls history if present so the model can
+          // see prior tool invocations in structured form.
+          tool_calls: message.toolCalls as any,
         };
       case "tool":
         return {

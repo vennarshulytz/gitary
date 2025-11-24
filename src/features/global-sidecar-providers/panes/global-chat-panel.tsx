@@ -1,22 +1,24 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Loader2, ArrowUp, Copy, Check } from "lucide-react";
-import { cn } from "@/toolkit/utils/shadcn-utils";
-import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
-import { useColorMode } from "@chakra-ui/react";
 import { AIAssistantIcon } from "@/components/icons/ai-assistant-icon";
+import { Button } from "@/components/ui/button";
+import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
+import { Textarea } from "@/components/ui/textarea";
+import { spaceHelper } from "@/helpers/space.helper";
 import { useStickyAutoScroll } from "@/hooks/use-sticky-autoscroll";
 import { agent } from "@/services/ai/ai-agent-runner";
-import { GLOBAL_AGENT_TOOLS } from "../tools";
-import { ToolInvocationList } from "../components/tool-invocation-list";
+import { aiContextService } from "@/services/ai/context-service";
+import { cn } from "@/toolkit/utils/shadcn-utils";
 import {
   useAgentChat,
   useParseTools,
   type Tool as AgentTool,
   type UIMessage,
 } from "@agent-labs/agent-chat";
+import { useColorMode } from "@chakra-ui/react";
+import { ArrowUp, Check, Copy, Square } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { ToolInvocationList } from "../components/tool-invocation-list";
+import { GLOBAL_AGENT_TOOLS } from "../tools";
 
 const CopyButton = ({ content, isGenerating }: { content: string; isGenerating?: boolean }) => {
   const { t } = useTranslation();
@@ -49,6 +51,7 @@ export const GlobalChatPanel = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { colorMode } = useColorMode();
   const { containerRef, notifyNewItem, scrollToBottom } = useStickyAutoScroll();
+  const [currentSpaceId, setCurrentSpaceId] = useState<string | null>(null);
 
   // Global tools for the assistant; defined in a separate module for maintainability.
   const agentTools: AgentTool[] = useMemo(
@@ -61,11 +64,19 @@ export const GlobalChatPanel = () => {
     messages: uiMessages,
     isAgentResponding,
     sendMessage,
+    abortAgentRun,
   } = useAgentChat({
     agent,
     toolDefs,
     toolExecutors,
-    contexts: [],
+    contexts: currentSpaceId
+      ? [
+        {
+          description: "current_space_id",
+          value: currentSpaceId,
+        },
+      ]
+      : [],
     initialMessages: [],
   });
 
@@ -85,6 +96,27 @@ export const GlobalChatPanel = () => {
   }, [uiMessages]);
 
   useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const pageCtx = await aiContextService.getCurrentPageContext();
+        const uri = pageCtx?.uri;
+        if (!uri || cancelled) return;
+        const spaceId = spaceHelper.getSpaceIdFromUri(uri);
+        if (!cancelled) {
+          setCurrentSpaceId(spaceId);
+        }
+      } catch {
+        if (!cancelled) {
+          setCurrentSpaceId(null);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  useEffect(() => {
     notifyNewItem();
   }, [messages, notifyNewItem]);
 
@@ -98,7 +130,11 @@ export const GlobalChatPanel = () => {
   };
 
   const handleSend = async () => {
-    if (!input.trim() || isAgentResponding) return;
+    if (isAgentResponding) {
+      abortAgentRun();
+      return;
+    }
+    if (!input.trim()) return;
     const prompt = input.trim();
     setInput("");
     if (textareaRef.current) {
@@ -204,7 +240,7 @@ export const GlobalChatPanel = () => {
           </div>
         </div>
       </div>
-      
+
       <div className="flex-shrink-0 border-t border-border bg-background z-10">
         <div className="max-w-3xl mx-auto w-full p-4">
           <div className="relative flex items-end gap-2 rounded-[26px] bg-background border border-border p-2">
@@ -220,17 +256,17 @@ export const GlobalChatPanel = () => {
             />
             <Button
               onClick={handleSend}
-              disabled={!input.trim() || isAgentResponding}
+              disabled={!input.trim() && !isAgentResponding}
               size="icon"
               className={cn(
                 "h-8 w-8 rounded-full transition-all duration-200 flex-shrink-0 mb-0.5 mr-0.5",
                 !input.trim()
-                  ? "bg-muted text-muted-foreground hover:bg-muted/80" 
+                  ? "bg-muted text-muted-foreground hover:bg-muted/80"
                   : "bg-gradient-to-br from-violet-500 to-purple-500 text-white hover:from-violet-600 hover:to-purple-600 shadow-sm"
               )}
             >
               {isAgentResponding ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Square className="h-4 w-4" />
               ) : (
                 <ArrowUp className="h-5 w-5" />
               )}

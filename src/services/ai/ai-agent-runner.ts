@@ -1,10 +1,9 @@
-import { Observable, type Unsubscribable } from "rxjs";
 import {
-  type AgentEvent,
   type Context as AgentContext,
+  type AgentEvent,
+  type Tool as AgentTool,
   type IAgent,
   type RunAgentInput,
-  type Tool as AgentTool,
   ToolInvocationStatus,
   type UIMessage,
 } from "@agent-labs/agent-chat";
@@ -12,8 +11,9 @@ import {
   convertOpenAIChunksToAgentEventObservable,
   type OpenAIChatChunk,
 } from "@agent-labs/agent-toolkit";
+import { Observable, type Unsubscribable } from "rxjs";
 import { aiGateway, type AIMessage } from "./gateway";
-import type { AIRole, AIToolDefinition } from "./types";
+import type { AIToolCall, AIToolDefinition } from "./types";
 
 /**
  * Bridge between @agent-labs/agent-chat's IAgent interface and our existing
@@ -29,7 +29,7 @@ class AIGatewayAgent implements IAgent {
       input.runId || input.threadId || `agent-${Date.now().toString(36)}`;
 
     const aiMessages = truncateMessagesByChars(
-      buildAIMessagesFromUI(input.messages, input.context)
+      convertUIMessagesToAIMessages(input.messages, input.context)
     );
     const toolDefs = buildToolDefs(input.tools);
 
@@ -78,67 +78,112 @@ class AIGatewayAgent implements IAgent {
   }
 }
 
-function buildAIMessagesFromUI(
+function convertUIMessagesToAIMessages(
   uiMessages: UIMessage[],
   contexts?: AgentContext[]
 ): AIMessage[] {
-  const msgs: AIMessage[] = [];
+  const base: AIMessage[] = [];
 
   // Base system prompt for the in-app assistant.
   const baseSystemPrompt =
     "你是一个项目内的 AI 助手。你可以查看当前页面信息，并在需要时调用可用的工具来辅助用户操作。";
-  msgs.push({ role: "system", content: baseSystemPrompt });
+  base.push({ role: "system", content: baseSystemPrompt });
 
   if (contexts && contexts.length) {
     const ctxText = contexts
       .map((c) => `${c.description}:\n${c.value}`)
       .join("\n\n");
-    msgs.push({ role: "system", content: ctxText });
+    base.push({ role: "system", content: ctxText });
   }
 
-  for (const msg of uiMessages) {
-    const segments: string[] = [];
-    for (const part of msg.parts) {
-      if (part.type === "text") {
-        segments.push(part.text);
-      } else if (part.type === "tool-invocation") {
-        const inv = part.toolInvocation;
-        if (
-          inv.status === ToolInvocationStatus.RESULT &&
-          inv.result !== undefined
-        ) {
-          const resultText =
-            typeof inv.result === "string"
-              ? inv.result
-              : JSON.stringify(inv.result);
-          segments.push(`工具 ${inv.toolName} 的结果：${resultText}`);
+  const messages: AIMessage[] = uiMessages
+    .filter((message) => message.role !== "data")
+    .map((message) => {
+      return message.parts
+        .map((part, index) => {
+          return convertUIPartToAIMessages(
+            message as UIMessage & {
+              role: "system" | "assistant" | "user";
+            },
+            part,
+            index
+          );
+        })
+        .flat();
+    })
+    .flat();
+
+  return base.concat(messages);
+}
+
+function convertUIPartToAIMessages(
+  message: UIMessage & { role: "system" | "assistant" | "user" },
+  part: UIMessage["parts"][number],
+  index: number
+): AIMessage[] {
+  const { role } = message;
+  const messages: AIMessage[] = [];
+
+  if (part.type === "text") {
+    messages.push({
+      role,
+      content: part.text,
+    });
+  } else if (part.type === "tool-invocation") {
+    const inv = part.toolInvocation;
+
+    // Ensure function.arguments is always a valid JSON string representing an object.
+    const rawArgs = inv.args;
+    let argumentsJson: string;
+    if (typeof rawArgs === "string") {
+      try {
+        // If it's valid JSON already, and parses to an object, pass through.
+        const parsed = JSON.parse(rawArgs);
+        if (parsed && typeof parsed === "object") {
+          argumentsJson = rawArgs;
+        } else {
+          // Wrap primitive into an object to satisfy providers that expect objects.
+          argumentsJson = JSON.stringify({ value: parsed });
         }
+      } catch {
+        // Not valid JSON; wrap raw string into an object.
+        argumentsJson = JSON.stringify({ value: rawArgs });
       }
+    } else {
+        argumentsJson = JSON.stringify(rawArgs ?? {});
     }
 
-    const content = segments.join("\n\n").trim();
-    if (!content) continue;
+    const toolCall: AIToolCall = {
+      id: inv.toolCallId,
+      type: "function",
+      function: {
+        name: inv.toolName,
+        arguments: argumentsJson,
+      },
+    };
 
-    let role: AIRole;
-    switch (msg.role) {
-      case "system":
-      case "user":
-      case "assistant":
-        role = msg.role;
-        break;
-      default:
-        role = "user";
-    }
+    const assistantToolCallMessage: AIMessage = {
+      role: "assistant",
+      content: "",
+      toolCalls: [toolCall],
+    };
 
-    msgs.push({ role, content });
+    const toolResultMessage: AIMessage = {
+      role: "tool",
+      // For OpenAI-compatible providers, name is used as tool_call_id.
+      name: inv.toolCallId,
+      content: JSON.stringify(inv.result ?? {}),
+    };
+    messages.push(assistantToolCallMessage, toolResultMessage);
   }
 
-  return msgs;
+  return messages;
 }
 
 // Rough character-level trimming to avoid sending overly large prompts.
 // This is a safeguard on top of provider-side limits; it keeps the most
-// recent non-system messages while always preserving system prompts.
+// recent non-system messages while always preserving system prompts and
+// structural tool call history.
 const MAX_TOTAL_CONTENT_CHARS = 30_000;
 const MAX_PER_MESSAGE_CHARS = 10_000;
 
@@ -158,9 +203,26 @@ function truncateMessagesByChars(
   const result: AIMessage[] = [];
 
   const pushWithClamp = (msg: AIMessage): void => {
-    if (remaining <= 0) return;
+    // Always preserve structural messages (tool calls & tool role messages)
+    // regardless of remaining char budget, since they rarely dominate token
+    // usage but are required for a valid OpenAI tool_call history.
+    if (msg.role === "tool" || (msg as any).toolCalls?.length) {
+      result.push(msg);
+      return;
+    }
+
     const original = msg.content ?? "";
-    if (!original) return;
+
+    // If we've exhausted the budget, keep the message but clear content.
+    if (remaining <= 0) {
+      result.push({ ...msg, content: "" });
+      return;
+    }
+
+    if (!original) {
+      result.push(msg);
+      return;
+    }
 
     let content = clampContent(original, MAX_PER_MESSAGE_CHARS);
     if (content.length > remaining) {
@@ -169,7 +231,6 @@ function truncateMessagesByChars(
       content = content.slice(content.length - remaining);
     }
 
-    if (!content.length) return;
     remaining -= content.length;
     result.push({ ...msg, content });
   };
@@ -184,24 +245,17 @@ function truncateMessagesByChars(
 
   // 2) Add non-system messages from most recent backwards.
   const preserved: AIMessage[] = [];
-  for (let i = otherMessages.length - 1; i >= 0 && remaining > 0; i--) {
-    const msg = otherMessages[i];
-    const original = msg.content ?? "";
-    if (!original) continue;
-
-    let content = clampContent(original, MAX_PER_MESSAGE_CHARS);
-    if (content.length > remaining) {
-      content = content.slice(content.length - remaining);
-    }
-    if (!content.length) continue;
-
-    remaining -= content.length;
-    preserved.push({ ...msg, content });
+  for (let i = otherMessages.length - 1; i >= 0; i--) {
+    preserved.push(otherMessages[i]);
   }
 
-  // Messages were collected from latest to oldest; restore chronological order.
+  // Messages were collected from latest to oldest; restore chronological order,
+  // then apply pushWithClamp which enforces the remaining char budget while
+  // preserving structural tool/tool_call messages.
   preserved.reverse();
-  result.push(...preserved);
+  for (const msg of preserved) {
+    pushWithClamp(msg);
+  }
   return result;
 }
 

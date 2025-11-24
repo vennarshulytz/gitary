@@ -1,8 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { aiGateway } from "@/services/ai/gateway";
-import { CHAT_CONFIG } from "@/services/ai/chat-config";
-import { aiContextService } from "@/services/ai/context-service";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, ArrowUp, Copy, Check } from "lucide-react";
@@ -11,12 +8,15 @@ import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
 import { useColorMode } from "@chakra-ui/react";
 import { AIAssistantIcon } from "@/components/icons/ai-assistant-icon";
 import { useStickyAutoScroll } from "@/hooks/use-sticky-autoscroll";
-
-interface ChatMessage {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-}
+import { agent } from "@/services/ai/ai-agent-runner";
+import { GLOBAL_AGENT_TOOLS } from "../tools";
+import { ToolInvocationList } from "../components/tool-invocation-list";
+import {
+  useAgentChat,
+  useParseTools,
+  type Tool as AgentTool,
+  type UIMessage,
+} from "@agent-labs/agent-chat";
 
 const CopyButton = ({ content, isGenerating }: { content: string; isGenerating?: boolean }) => {
   const { t } = useTranslation();
@@ -45,12 +45,44 @@ const CopyButton = ({ content, isGenerating }: { content: string; isGenerating?:
 
 export const GlobalChatPanel = () => {
   const { t } = useTranslation();
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
-  const [busy, setBusy] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { colorMode } = useColorMode();
   const { containerRef, notifyNewItem, scrollToBottom } = useStickyAutoScroll();
+
+  // Global tools for the assistant; defined in a separate module for maintainability.
+  const agentTools: AgentTool[] = useMemo(
+    () => GLOBAL_AGENT_TOOLS as AgentTool[],
+    []
+  );
+  const { toolDefs, toolExecutors } = useParseTools(agentTools);
+
+  const {
+    messages: uiMessages,
+    isAgentResponding,
+    sendMessage,
+  } = useAgentChat({
+    agent,
+    toolDefs,
+    toolExecutors,
+    contexts: [],
+    initialMessages: [],
+  });
+
+  const extractTextFromUIMessage = (message: UIMessage): string => {
+    const parts = message.parts || [];
+    return parts
+      .filter((part) => part.type === "text")
+      .map((part: any) => part.text as string)
+      .join("\n\n");
+  };
+
+  const messages = uiMessages;
+  const lastAssistantId = useMemo(() => {
+    const reversed = [...uiMessages].reverse();
+    const last = reversed.find((m) => m.role === "assistant");
+    return last?.id;
+  }, [uiMessages]);
 
   useEffect(() => {
     notifyNewItem();
@@ -66,87 +98,16 @@ export const GlobalChatPanel = () => {
   };
 
   const handleSend = async () => {
-    if (!input.trim() || busy) return;
+    if (!input.trim() || isAgentResponding) return;
     const prompt = input.trim();
     setInput("");
     if (textareaRef.current) {
       textareaRef.current.style.height = '40px';
     }
-
-    const currentContext = await aiContextService.getFullContext({
-      includeBrowserTab: false,
-      includeEditor: true,
-      includeProject: false,
-    });
-
-    let userContent = prompt;
-    if (currentContext?.editor) {
-      const contextText = aiContextService.formatContextForPrompt(currentContext);
-      if (contextText.trim()) {
-        userContent = `${contextText}\n\n## ${t("globalChat.userQuestion")}\n${prompt}`;
-      }
-    }
-
-    const userMessage: ChatMessage = {
-      id: `${Date.now()}-user`,
-      role: "user",
-      content: prompt,
-    };
-    const base = [...messages, userMessage];
-    setMessages([
-      ...base,
-      { id: `${Date.now()}-typing`, role: "assistant", content: "" },
-    ]);
-    setBusy(true);
     try {
-      const assistantMessageId = `${Date.now()}-assistant`;
-      let accumulatedContent = "";
-
-      const systemPrompt = CHAT_CONFIG.getSystemPrompt(currentContext);
-
-      await aiGateway.chatStream(
-        {
-          model: CHAT_CONFIG.defaultModel,
-          messages: [
-            {
-              role: "system",
-              content: systemPrompt,
-            },
-            ...base.map((m) => ({ role: m.role, content: m.content })),
-            { role: "user", content: userContent },
-          ],
-        },
-        (chunk: string) => {
-          accumulatedContent += chunk;
-          setMessages((prev) => {
-            const next = [...prev];
-            const lastIndex = next.length - 1;
-            if (lastIndex >= 0 && next[lastIndex].role === "assistant") {
-              next[lastIndex] = {
-                id: assistantMessageId,
-                role: "assistant",
-                content: accumulatedContent,
-              };
-            }
-            return next;
-          });
-        }
-      );
+      await sendMessage(prompt);
     } catch (error) {
-      setMessages((prev) => {
-        const next = [...prev];
-        next[next.length - 1] = {
-          id: `${Date.now()}-assistant-error`,
-          role: "assistant",
-          content:
-            error instanceof Error
-              ? t("globalChat.errorOccurred", { message: error.message })
-              : t("globalChat.errorRetry"),
-        };
-        return next;
-      });
-    } finally {
-      setBusy(false);
+      console.error("Global AI assistant error:", error);
     }
   };
 
@@ -171,48 +132,68 @@ export const GlobalChatPanel = () => {
                 {t("globalChat.welcomeTitle") || "How can I help you today?"}
               </h3>
               <p className="text-base text-muted-foreground max-w-md leading-relaxed">
-                {t("globalChat.welcomeDesc") || "我是你的全局 AI 助手。无论是代码问题、创意写作还是日常闲聊，我都乐意效劳。"}
+                {t("globalChat.welcomeDesc") || "I'm your global AI assistant. Whether it's code problems, creative writing, or everyday chat, I'm happy to help."}
               </p>
             </div>
           )}
           <div className="py-4 space-y-6">
-            {messages.map((msg) => (
-              <div key={msg.id} className="w-full group animate-in slide-in-from-bottom-2 duration-300">
-                {msg.role === "assistant" ? (
-                  <div className="flex flex-col gap-1.5">
-                    <div className="px-4 group/content relative">
-                      {!msg.content ? (
-                        <div className="flex items-center gap-2 text-muted-foreground h-7">
-                          <span className="w-1.5 h-1.5 bg-violet-500/40 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                          <span className="w-1.5 h-1.5 bg-violet-500/40 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                          <span className="w-1.5 h-1.5 bg-violet-500/40 rounded-full animate-bounce" />
-                        </div>
-                      ) : (
-                        <>
-                          <MarkdownRenderer content={msg.content} isDark={colorMode === 'dark'} />
-                          <div className="mt-2 opacity-0 group-hover/content:opacity-100 transition-opacity">
-                            <CopyButton 
-                              content={msg.content} 
-                              isGenerating={busy && msg.id === messages[messages.length - 1]?.id}
-                            />
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-1.5 items-end">
-                    <div className="px-4 w-full flex justify-end">
-                      <div className="bg-secondary/80 text-secondary-foreground px-4 py-2.5 rounded-[20px] rounded-tr-md shadow-sm max-w-full inline-block border border-border/5">
-                        <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">
-                          {msg.content}
+            {messages
+              .filter((msg) => msg.role === "user" || msg.role === "assistant")
+              .map((msg) => {
+                const contentText = extractTextFromUIMessage(msg);
+                const hasContent = contentText.trim().length > 0;
+                const isAssistant = msg.role === "assistant";
+                const isLastAssistant =
+                  isAssistant && msg.id === lastAssistantId;
+                const showTyping =
+                  isLastAssistant && isAgentResponding && !hasContent;
+
+                return (
+                  <div
+                    key={msg.id}
+                    className="w-full group animate-in slide-in-from-bottom-2 duration-300"
+                  >
+                    {isAssistant ? (
+                      <div className="flex flex-col gap-1.5">
+                        <div className="px-4 group/content relative">
+                          {showTyping ? (
+                            <div className="flex items-center gap-2 text-muted-foreground h-7">
+                              <span className="w-1.5 h-1.5 bg-violet-500/40 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                              <span className="w-1.5 h-1.5 bg-violet-500/40 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                              <span className="w-1.5 h-1.5 bg-violet-500/40 rounded-full animate-bounce" />
+                            </div>
+                          ) : hasContent ? (
+                            <>
+                              <MarkdownRenderer
+                                content={contentText}
+                                isDark={colorMode === "dark"}
+                              />
+                              <div className="mt-2 opacity-0 group-hover/content:opacity-100 transition-opacity">
+                                <CopyButton
+                                  content={contentText}
+                                  isGenerating={isAgentResponding && isLastAssistant}
+                                />
+                              </div>
+                            </>
+                          ) : null}
+
+                          <ToolInvocationList message={msg} />
                         </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="flex flex-col gap-1.5 items-end">
+                        <div className="px-4 w-full flex justify-end">
+                          <div className="bg-secondary/80 text-secondary-foreground px-4 py-2.5 rounded-[20px] rounded-tr-md shadow-sm max-w-full inline-block border border-border/5">
+                            <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">
+                              {contentText}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            ))}
+                );
+              })}
           </div>
         </div>
       </div>
@@ -232,7 +213,7 @@ export const GlobalChatPanel = () => {
             />
             <Button
               onClick={handleSend}
-              disabled={!input.trim() || busy}
+              disabled={!input.trim() || isAgentResponding}
               size="icon"
               className={cn(
                 "h-8 w-8 rounded-full transition-all duration-200 flex-shrink-0 mb-0.5 mr-0.5",
@@ -241,7 +222,7 @@ export const GlobalChatPanel = () => {
                   : "bg-gradient-to-br from-violet-500 to-purple-500 text-white hover:from-violet-600 hover:to-purple-600 shadow-sm"
               )}
             >
-              {busy ? (
+              {isAgentResponding ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <ArrowUp className="h-5 w-5" />

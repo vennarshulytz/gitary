@@ -9,6 +9,7 @@ import type {
   AIGatewayResponse,
   AIRole,
 } from "./types";
+import type { OpenAIChatChunk } from "@agent-labs/agent-toolkit";
 
 export type AIProviderName =
   | "openai"
@@ -22,10 +23,12 @@ export interface AIProvider {
   readonly name: string;
   readonly defaultModel: string;
   chat(req: Partial<AIGatewayRequest>): Promise<AIGatewayResponse>;
+  /**
+   * Streaming as OpenAI-compatible chunks for agent-style orchestration.
+   */
   chatStream(
-    req: Partial<AIGatewayRequest>,
-    onChunk: (chunk: string) => void
-  ): Promise<AIGatewayResponse>;
+    req: Partial<AIGatewayRequest>
+  ): Promise<AsyncIterable<OpenAIChatChunk>>;
 }
 
 export interface OpenAICompatibleProviderOptions {
@@ -147,9 +150,8 @@ export class OpenAICompatibleProvider implements AIProvider {
   }
 
   async chatStream(
-    req: Partial<AIGatewayRequest>,
-    onChunk: (chunk: string) => void
-  ): Promise<AIGatewayResponse> {
+    req: Partial<AIGatewayRequest>
+  ): Promise<AsyncIterable<OpenAIChatChunk>> {
     const model = req.model || this.defaultModel;
     if (!model) {
       throw new Error(`Provider "${this.name}" 未配置模型`);
@@ -175,63 +177,30 @@ export class OpenAICompatibleProvider implements AIProvider {
       stream: true,
     });
 
-    let fullContent = "";
-    let role: AIRole = "assistant";
-    let name: string | undefined;
-    const toolCalls: AIGatewayResponse["toolCalls"] = [];
-
-    for await (const chunk of stream) {
-      const delta = chunk.choices[0]?.delta;
-      if (!delta) continue;
-
-      if (delta.content) {
-        fullContent += delta.content;
-        onChunk(delta.content);
-      }
-
-      if (delta.role && (delta.role === "system" || delta.role === "user" || delta.role === "assistant" || delta.role === "tool")) {
-        role = delta.role;
-      }
-
-      if ((delta as { name?: string }).name) {
-        name = (delta as { name?: string }).name;
-      }
-
-      if (delta.tool_calls) {
-        for (const toolCall of delta.tool_calls) {
-          const index = toolCall.index ?? 0;
-          if (!toolCalls[index]) {
-            toolCalls[index] = {
-              id: toolCall.id || "",
-              type: "function",
-              function: {
-                name: "",
-                arguments: "",
-              },
-            };
-          }
-          if (toolCall.function?.name) {
-            toolCalls[index].function.name += toolCall.function.name;
-          }
-          if (toolCall.function?.arguments) {
-            toolCalls[index].function.arguments += toolCall.function.arguments;
-          }
-        }
+    // Wrap ChatCompletionStream into a minimal, toolkit-compatible chunk shape.
+    async function* mapStream(): AsyncIterable<OpenAIChatChunk> {
+      for await (const chunk of stream as any) {
+        yield {
+          choices: chunk.choices?.map((choice: any) => ({
+            delta: {
+              content: choice.delta?.content,
+              tool_calls: choice.delta?.tool_calls?.map((tc: any) => ({
+                id: tc.id,
+                index: tc.index ?? 0,
+                type: tc.type,
+                function: {
+                  name: tc.function?.name,
+                  arguments: tc.function?.arguments,
+                },
+              })),
+            },
+            finish_reason: choice.finish_reason,
+          })),
+        };
       }
     }
 
-    const result: AIGatewayResponse = {
-      messages: [
-        {
-          role,
-          content: fullContent,
-          name,
-        },
-      ],
-      toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
-    };
-
-    return result;
+    return mapStream();
   }
 }
 

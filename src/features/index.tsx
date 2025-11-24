@@ -18,7 +18,6 @@ export default createPlugin({
       ShowCurrentSpacePagesOnly,
       featureSearch,
       browserExtensionActivity,
-      // featureAIAssistant,
       pluginAddInitialIndexedDbSpace,
     ]);
   },

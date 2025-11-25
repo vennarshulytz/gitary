@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ChevronRight, ChevronDown, Loader2 } from "lucide-react";
 import type { UIMessage } from "@agent-labs/agent-chat";
 
@@ -50,6 +51,7 @@ interface ToolInvocationItemProps {
 }
 
 const ToolInvocationItem = ({ invocation }: ToolInvocationItemProps) => {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
 
   const isPending =
@@ -77,25 +79,27 @@ const ToolInvocationItem = ({ invocation }: ToolInvocationItemProps) => {
   return (
     <div className="rounded-md border border-dashed border-border/60 bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
       <div className="flex items-center justify-between mb-1">
-        <div className="flex items-center gap-1 font-semibold text-[11px] uppercase tracking-wide">
-          <span>
-            Tool: {invocation.toolName}{" "}
-            <span className="ml-1 text-[10px] font-normal opacity-70">
-              ({invocation.status})
-            </span>
+        <div className="flex items-center gap-1 font-semibold text-[11px] uppercase tracking-wide min-w-0 flex-1">
+          <span className="truncate max-w-full">
+            Tool: {invocation.toolName}
+          </span>
+          <span className="ml-1 text-[10px] font-normal opacity-70 whitespace-nowrap">
+            ({invocation.status})
           </span>
           {isPending && (
             <Loader2 className="h-3 w-3 text-amber-500 animate-spin" />
           )}
           {isError && (
-            <span className="ml-1 text-[11px] text-red-500">错误</span>
+            <span className="ml-1 text-[11px] text-red-500 whitespace-nowrap">
+              {t("toolInvocation.error")}
+            </span>
           )}
         </div>
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
           className="text-muted-foreground hover:text-foreground px-1 py-0.5 rounded-sm"
-          aria-label={expanded ? "收起工具详情" : "展开工具详情"}
+          aria-label={expanded ? t("toolInvocation.collapse") : t("toolInvocation.expand")}
         >
           {expanded ? (
             <ChevronDown className="h-3.5 w-3.5" />

@@ -1,6 +1,11 @@
 import type { Tool } from "@agent-labs/agent-chat";
 import { getWorkspaceContextTool } from "./workspace-context";
 import { fsReaddirTool, fsReadFileTool, fsStatTool } from "./fs";
+import {
+  excalidrawApplyOperationsTool,
+  excalidrawGenerateDiagramTool,
+  excalidrawGetSummaryTool,
+} from "./excalidraw";
 
 // Global tools used by the GlobalChatPanel.
 // New tools should be added here, each implemented in its own folder/file.
@@ -9,4 +14,7 @@ export const GLOBAL_AGENT_TOOLS: Tool[] = [
   fsReaddirTool,
   fsReadFileTool,
   fsStatTool,
+  excalidrawGetSummaryTool,
+  excalidrawGenerateDiagramTool,
+  excalidrawApplyOperationsTool,
 ];

@@ -205,7 +205,48 @@
     "example1": "A three-tier web system with frontend, backend, and database",
     "example2": "User registration flow: input info → validate → create account → send confirmation email",
     "canvasRequired": "Please open this assistant in the Excalidraw canvas to write generated diagrams to the current canvas.",
-    "aiAssistant": "AI Drawing Assistant"
+    "aiAssistant": "AI Drawing Assistant",
+    "saving": "Saving...",
+    "edited": "Unsaved changes",
+    "saveError": "Save failed",
+    "saved": "Saved",
+    "saveNow": "Save now",
+    "uriRequired": "URI is required",
+    "generateSuccess": "Generation successful",
+    "diagramAdded": "Diagram added to canvas",
+    "diagramGenerated": "Diagram generated!",
+    "generateError": "Error generating diagram, please try again",
+    "tools": {
+      "noCanvas": "No Excalidraw canvas available. Please open a canvas in an Excalidraw file and try again.",
+      "promptRequired": "Prompt cannot be empty.",
+      "operationsRequired": "Operations cannot be empty.",
+      "invalidOperation": "Invalid operation object.",
+      "addNodeLabelRequired": "add_node operation requires label.",
+      "connectFromToRequired": "connect operation requires from and to.",
+      "connectNodeNotFound": "connect operation did not find corresponding from/to nodes, please confirm the node text or ID is correct.",
+      "renameTargetLabelRequired": "rename_node requires target and newLabel.",
+      "renameNodeNotFound": "rename_node did not find target node, please confirm target is correct node text or ID.",
+      "renameOnlyTextNode": "rename_node currently only supports renaming text nodes, please ensure target points to a text element.",
+      "deleteTargetRequired": "delete_node requires target.",
+      "deleteNodeNotFound": "delete_node did not find target node, please confirm target is correct node text or ID.",
+      "unknownOperationType": "Unknown operation type: {{type}}",
+      "getSummaryDescription": "Summarize the main nodes and connections in the current Excalidraw canvas to understand the existing diagram structure. Returns abstract node/edge information, not the complete Excalidraw JSON.",
+      "getSummaryMaxNodesDescription": "Maximum number of nodes to return, defaults to all. For larger diagrams, you can specify a smaller number to save tokens.",
+      "generateDiagramDescription": "Generate a new Excalidraw diagram based on natural language description and write it to the current canvas. Suitable for creating flowcharts, architecture diagrams, etc. from scratch.",
+      "generateDiagramPromptDescription": "The diagram description you want, for example \"a three-tier web system architecture diagram with frontend, backend, and database\".",
+      "generateDiagramModeDescription": "append=add elements on top of existing diagram, replace=clear current canvas and keep only the new diagram.",
+      "applyOperationsDescription": "Apply a set of semantic modification operations (such as adding nodes, connecting arrows, renaming nodes, or deleting nodes) to the current Excalidraw diagram. Suitable for small-step editing of existing diagrams, rather than regenerating the entire diagram.",
+      "applyOperationsOperationsDescription": "List of operations to apply. Each operation has an op field (add_node | connect | rename_node | delete_node) and corresponding parameters.",
+      "applyOperationsOpDescription": "Operation type.",
+      "applyOperationsIdDescription": "Logical ID when adding a node, optional. If provided, it will be used as the id of the node's text element, and can be referenced later by this ID.",
+      "applyOperationsLabelDescription": "Text content displayed when adding a node, for example \"Redis Cache\" or \"Order Service\".",
+      "applyOperationsKindDescription": "Node type (such as service/database/cache, etc.), currently only used for semantic hints and does not affect styling.",
+      "applyOperationsNearDescription": "Relative reference node when adding a node, can be a node ID or node text. The new node will be placed near this node.",
+      "applyOperationsFromDescription": "Starting node in connect operation, can be a node ID or node text.",
+      "applyOperationsToDescription": "Terminating node in connect operation, can be a node ID or node text.",
+      "applyOperationsTargetDescription": "Target node (ID or text) for rename_node/delete_node operations.",
+      "applyOperationsNewLabelDescription": "New text label for rename_node operation."
+    }
   },
   "story": {
     "loadDataFailed": "Failed to Load Data",
@@ -283,5 +324,10 @@
     "name": "Browser Extension",
     "title": "Gitary Companion",
     "description": "Browser extension that lets you jump to Gitary from GitHub, Gitee, and GitCode repository pages with one click"
+  },
+  "toolInvocation": {
+    "error": "Error",
+    "expand": "Expand tool details",
+    "collapse": "Collapse tool details"
   }
 }

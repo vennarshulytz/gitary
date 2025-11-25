@@ -205,7 +205,48 @@
     "example1": "一个包含前端、后端和数据库的三层 Web 系统",
     "example2": "用户注册流程：输入信息 → 验证 → 创建账户 → 发送确认邮件",
     "canvasRequired": "请在 Excalidraw 画布中打开并使用该助手，以便把生成的图形写入当前画布。",
-    "aiAssistant": "AI 绘图助手"
+    "aiAssistant": "AI 绘图助手",
+    "saving": "正在保存...",
+    "edited": "有未保存更改",
+    "saveError": "保存失败",
+    "saved": "已保存",
+    "saveNow": "立即保存",
+    "uriRequired": "需要提供 URI",
+    "generateSuccess": "生成成功",
+    "diagramAdded": "图表已添加到画布",
+    "diagramGenerated": "图表已生成！",
+    "generateError": "生成图表时出错，请重试",
+    "tools": {
+      "noCanvas": "当前没有可用的 Excalidraw 画布。请在一个 Excalidraw 文件中打开画布后再重试。",
+      "promptRequired": "prompt 不能为空。",
+      "operationsRequired": "operations 不能为空。",
+      "invalidOperation": "无效的操作对象。",
+      "addNodeLabelRequired": "add_node 操作需要提供 label。",
+      "connectFromToRequired": "connect 操作需要提供 from 和 to。",
+      "connectNodeNotFound": "connect 操作未找到对应的 from/to 节点，请确认节点文本或 ID 是否正确。",
+      "renameTargetLabelRequired": "rename_node 需要提供 target 和 newLabel。",
+      "renameNodeNotFound": "rename_node 未找到目标节点，请确认 target 是否为正确的节点文本或 ID。",
+      "renameOnlyTextNode": "rename_node 目前仅支持重命名文本节点，请确保 target 指向文本元素。",
+      "deleteTargetRequired": "delete_node 需要提供 target。",
+      "deleteNodeNotFound": "delete_node 未找到目标节点，请确认 target 是否为正确的节点文本或 ID。",
+      "unknownOperationType": "未知的操作类型: {{type}}",
+      "getSummaryDescription": "总结当前 Excalidraw 画布中的主要节点和连接关系，用于理解现有图表结构。返回的是抽象的节点/边信息，而不是完整的 Excalidraw JSON。",
+      "getSummaryMaxNodesDescription": "最多返回多少个节点，默认返回全部。较大的图可以指定一个较小的数以节省 token。",
+      "generateDiagramDescription": "根据自然语言描述生成一张新的 Excalidraw 图表，并写入当前画布。适合从零创建流程图、架构图等。",
+      "generateDiagramPromptDescription": "你想要的图表描述，例如\"一个包含前端、后端和数据库的三层 Web 系统架构图\"。",
+      "generateDiagramModeDescription": "append=在现有图的基础上追加元素，replace=清空当前画布并只保留新图。",
+      "applyOperationsDescription": "在当前 Excalidraw 图上应用一组语义化的修改操作（例如新增节点、连接箭头、重命名节点或删除节点）。适合对现有图表做小步编辑，而不是整图重生成。",
+      "applyOperationsOperationsDescription": "要应用的操作列表。每个操作都有 op 字段（add_node | connect | rename_node | delete_node），以及对应的参数。",
+      "applyOperationsOpDescription": "操作类型。",
+      "applyOperationsIdDescription": "新增节点时的逻辑 ID，可选。如果提供，将作为该节点文本元素的 id，后续可以通过该 ID 引用。",
+      "applyOperationsLabelDescription": "新增节点时显示的文本内容，例如\"Redis 缓存\"或\"订单服务\"。",
+      "applyOperationsKindDescription": "节点类型（如 service/database/cache 等），目前仅用于语义提示，不影响样式。",
+      "applyOperationsNearDescription": "新增节点时的相对参考节点，可以是节点 ID 或节点文本。新节点会放在该节点附近。",
+      "applyOperationsFromDescription": "connect 操作中的起始节点，可以是节点 ID 或节点文本。",
+      "applyOperationsToDescription": "connect 操作中的终止节点，可以是节点 ID 或节点文本。",
+      "applyOperationsTargetDescription": "rename_node/delete_node 操作的目标节点（ID 或文本）。",
+      "applyOperationsNewLabelDescription": "rename_node 操作的新文本标签。"
+    }
   },
   "story": {
     "loadDataFailed": "加载数据失败",
@@ -283,5 +324,10 @@
     "name": "浏览器插件",
     "title": "Gitary Companion",
     "description": "浏览器扩展插件，让您可以在 GitHub、Gitee、GitCode 仓库页面一键跳转到 Gitary"
+  },
+  "toolInvocation": {
+    "error": "错误",
+    "expand": "展开工具详情",
+    "collapse": "收起工具详情"
   }
 }

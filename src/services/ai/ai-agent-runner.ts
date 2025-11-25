@@ -4,8 +4,7 @@ import {
   type Tool as AgentTool,
   type IAgent,
   type RunAgentInput,
-  ToolInvocationStatus,
-  type UIMessage,
+  type UIMessage
 } from "@agent-labs/agent-chat";
 import {
   convertOpenAIChunksToAgentEventObservable,
@@ -86,7 +85,7 @@ function convertUIMessagesToAIMessages(
 
   // Base system prompt for the in-app assistant.
   const baseSystemPrompt =
-    "你是一个项目内的 AI 助手。你可以查看当前页面信息，并在需要时调用可用的工具来辅助用户操作。";
+    "你是一个项目内的 AI 助手。你可以查看当前页面信息，并在需要时调用可用的工具（例如文件系统工具、工作区上下文工具和 Excalidraw 图表工具）来辅助用户操作。";
   base.push({ role: "system", content: baseSystemPrompt });
 
   if (contexts && contexts.length) {
@@ -168,11 +167,19 @@ function convertUIPartToAIMessages(
       toolCalls: [toolCall],
     };
 
+    const toolResultPayload =
+      // When a tool execution fails, surface the error message to the model
+      // instead of silently sending an empty object. This allows the agent
+      // to gracefully explain the failure or suggest next steps.
+      inv.error && typeof inv.error === "string"
+        ? { error: inv.error }
+        : inv.result ?? {};
+
     const toolResultMessage: AIMessage = {
       role: "tool",
       // For OpenAI-compatible providers, name is used as tool_call_id.
       name: inv.toolCallId,
-      content: JSON.stringify(inv.result ?? {}),
+      content: JSON.stringify(toolResultPayload),
     };
     messages.push(assistantToolCallMessage, toolResultMessage);
   }

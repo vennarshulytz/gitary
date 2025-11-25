@@ -71,6 +71,7 @@
     "@zenfs/core": "^1.0.5",
     "@zenfs/dom": "^1.0.0",
     "add": "^2.0.6",
+    "ahooks": "^3.9.6",
     "ali-oss": "^6.21.0",
     "app-toolkit": "workspace:*",
     "class-variance-authority": "^0.7.0",

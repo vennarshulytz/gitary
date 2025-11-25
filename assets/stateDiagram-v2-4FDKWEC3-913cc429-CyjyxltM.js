@@ -1,0 +1,33 @@
+import { s as __toESM } from "./rolldown-runtime-p26lAE5v.js";
+import { F as require_jsx_runtime, I as require_react, w as require_react_dom } from "./chakra-ui-CQDocrpT.js";
+import { t as require_client } from "./vendor-CudnnA7L.js";
+import { k as require_lodash } from "./react-utils-CvjcMHN2.js";
+import "./common-utils-oTrucMut.js";
+import "./monaco-DGZQwLgt.js";
+import "./react-markdown-DoGgeIas.js";
+import "./remark-gfm-C53RL58o.js";
+import { $n as require_markdown_it_task_lists, Qn as require_pinyin, er as require_markdown_it_multimd_table, un as m, wi as require_classnames } from "./app-BfwZs39Q.js";
+import "./chunk-55IACEB6-b2733bca-DBwyFMOY.js";
+import "./chunk-QN33PNHL-d51d5666-CkpsImjY.js";
+import { i as Ve, n as Me, r as Ue, t as Be } from "./chunk-DI55MBZ5-0b913128-DsZYK-QX.js";
+require_jsx_runtime();
+require_react();
+require_client();
+require_react_dom();
+require_lodash();
+require_markdown_it_multimd_table();
+require_markdown_it_task_lists();
+require_classnames();
+require_pinyin();
+var zt = {
+	parser: Be,
+	get db() {
+		return new Me(2);
+	},
+	renderer: Ve,
+	styles: Ue,
+	init: /* @__PURE__ */ m((t) => {
+		t.state || (t.state = {}), t.state.arrowMarkerAbsolute = t.arrowMarkerAbsolute;
+	}, "init")
+};
+export { zt as diagram };

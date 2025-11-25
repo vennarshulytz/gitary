@@ -428,60 +428,6 @@
   };
   Disposable.None = Object.freeze({ dispose() {
   } });
-  var DisposableMap = class {
-    constructor() {
-      this._store = /* @__PURE__ */ new Map();
-      this._isDisposed = false;
-      trackDisposable(this);
-    }
-    /**
-     * Disposes of all stored values and mark this object as disposed.
-     *
-     * Trying to use this object after it has been disposed of is an error.
-     */
-    dispose() {
-      markAsDisposed(this);
-      this._isDisposed = true;
-      this.clearAndDisposeAll();
-    }
-    /**
-     * Disposes of all stored values and clear the map, but DO NOT mark this object as disposed.
-     */
-    clearAndDisposeAll() {
-      if (!this._store.size) {
-        return;
-      }
-      try {
-        dispose(this._store.values());
-      } finally {
-        this._store.clear();
-      }
-    }
-    get(key) {
-      return this._store.get(key);
-    }
-    set(key, value, skipDisposeOnOverwrite = false) {
-      var _a5;
-      if (this._isDisposed) {
-        console.warn(new Error("Trying to add a disposable to a DisposableMap that has already been disposed of. The added object will be leaked!").stack);
-      }
-      if (!skipDisposeOnOverwrite) {
-        (_a5 = this._store.get(key)) === null || _a5 === void 0 ? void 0 : _a5.dispose();
-      }
-      this._store.set(key, value);
-    }
-    /**
-     * Delete the value stored for `key` from this map and also dispose of it.
-     */
-    deleteAndDispose(key) {
-      var _a5;
-      (_a5 = this._store.get(key)) === null || _a5 === void 0 ? void 0 : _a5.dispose();
-      this._store.delete(key);
-    }
-    [Symbol.iterator]() {
-      return this._store[Symbol.iterator]();
-    }
-  };
 
   // node_modules/.pnpm/monaco-editor@0.50.0/node_modules/monaco-editor/esm/vs/base/common/linkedList.js
   var Node = class _Node {
@@ -5993,6 +5939,8 @@
               case 125:
                 chClass = hasOpenCurlyBracket ? 0 : 1;
                 break;
+              // The following three rules make it that ' or " or ` are allowed inside links
+              // only if the link is wrapped by some other quote character
               case 39:
               case 34:
               case 96:
@@ -9219,54 +9167,53 @@
       let ambiguousCharacterCount = 0;
       let invisibleCharacterCount = 0;
       let nonBasicAsciiCharacterCount = 0;
-      forLoop:
-        for (let lineNumber = startLine, lineCount = endLine; lineNumber <= lineCount; lineNumber++) {
-          const lineContent = model.getLineContent(lineNumber);
-          const lineLength = lineContent.length;
-          searcher.reset(0);
-          do {
-            m = searcher.next(lineContent);
-            if (m) {
-              let startIndex = m.index;
-              let endIndex = m.index + m[0].length;
-              if (startIndex > 0) {
-                const charCodeBefore = lineContent.charCodeAt(startIndex - 1);
-                if (isHighSurrogate(charCodeBefore)) {
-                  startIndex--;
-                }
-              }
-              if (endIndex + 1 < lineLength) {
-                const charCodeBefore = lineContent.charCodeAt(endIndex - 1);
-                if (isHighSurrogate(charCodeBefore)) {
-                  endIndex++;
-                }
-              }
-              const str = lineContent.substring(startIndex, endIndex);
-              let word = getWordAtText(startIndex + 1, DEFAULT_WORD_REGEXP, lineContent, 0);
-              if (word && word.endColumn <= startIndex + 1) {
-                word = null;
-              }
-              const highlightReason = codePointHighlighter.shouldHighlightNonBasicASCII(str, word ? word.word : null);
-              if (highlightReason !== 0) {
-                if (highlightReason === 3) {
-                  ambiguousCharacterCount++;
-                } else if (highlightReason === 2) {
-                  invisibleCharacterCount++;
-                } else if (highlightReason === 1) {
-                  nonBasicAsciiCharacterCount++;
-                } else {
-                  assertNever(highlightReason);
-                }
-                const MAX_RESULT_LENGTH = 1e3;
-                if (ranges.length >= MAX_RESULT_LENGTH) {
-                  hasMore = true;
-                  break forLoop;
-                }
-                ranges.push(new Range(lineNumber, startIndex + 1, lineNumber, endIndex + 1));
+      forLoop: for (let lineNumber = startLine, lineCount = endLine; lineNumber <= lineCount; lineNumber++) {
+        const lineContent = model.getLineContent(lineNumber);
+        const lineLength = lineContent.length;
+        searcher.reset(0);
+        do {
+          m = searcher.next(lineContent);
+          if (m) {
+            let startIndex = m.index;
+            let endIndex = m.index + m[0].length;
+            if (startIndex > 0) {
+              const charCodeBefore = lineContent.charCodeAt(startIndex - 1);
+              if (isHighSurrogate(charCodeBefore)) {
+                startIndex--;
               }
             }
-          } while (m);
-        }
+            if (endIndex + 1 < lineLength) {
+              const charCodeBefore = lineContent.charCodeAt(endIndex - 1);
+              if (isHighSurrogate(charCodeBefore)) {
+                endIndex++;
+              }
+            }
+            const str = lineContent.substring(startIndex, endIndex);
+            let word = getWordAtText(startIndex + 1, DEFAULT_WORD_REGEXP, lineContent, 0);
+            if (word && word.endColumn <= startIndex + 1) {
+              word = null;
+            }
+            const highlightReason = codePointHighlighter.shouldHighlightNonBasicASCII(str, word ? word.word : null);
+            if (highlightReason !== 0) {
+              if (highlightReason === 3) {
+                ambiguousCharacterCount++;
+              } else if (highlightReason === 2) {
+                invisibleCharacterCount++;
+              } else if (highlightReason === 1) {
+                nonBasicAsciiCharacterCount++;
+              } else {
+                assertNever(highlightReason);
+              }
+              const MAX_RESULT_LENGTH = 1e3;
+              if (ranges.length >= MAX_RESULT_LENGTH) {
+                hasMore = true;
+                break forLoop;
+              }
+              ranges.push(new Range(lineNumber, startIndex + 1, lineNumber, endIndex + 1));
+            }
+          }
+        } while (m);
+      }
       return {
         ranges,
         hasMore,
@@ -10713,34 +10660,33 @@
       const paths = new FastArrayNegativeIndices();
       paths.set(0, V.get(0) === 0 ? null : new SnakePath(null, 0, 0, V.get(0)));
       let k = 0;
-      loop:
-        while (true) {
-          d++;
-          if (!timeout.isValid()) {
-            return DiffAlgorithmResult.trivialTimedOut(seqX, seqY);
+      loop: while (true) {
+        d++;
+        if (!timeout.isValid()) {
+          return DiffAlgorithmResult.trivialTimedOut(seqX, seqY);
+        }
+        const lowerBound = -Math.min(d, seqY.length + d % 2);
+        const upperBound = Math.min(d, seqX.length + d % 2);
+        for (k = lowerBound; k <= upperBound; k += 2) {
+          let step = 0;
+          const maxXofDLineTop = k === upperBound ? -1 : V.get(k + 1);
+          const maxXofDLineLeft = k === lowerBound ? -1 : V.get(k - 1) + 1;
+          step++;
+          const x = Math.min(Math.max(maxXofDLineTop, maxXofDLineLeft), seqX.length);
+          const y = x - k;
+          step++;
+          if (x > seqX.length || y > seqY.length) {
+            continue;
           }
-          const lowerBound = -Math.min(d, seqY.length + d % 2);
-          const upperBound = Math.min(d, seqX.length + d % 2);
-          for (k = lowerBound; k <= upperBound; k += 2) {
-            let step = 0;
-            const maxXofDLineTop = k === upperBound ? -1 : V.get(k + 1);
-            const maxXofDLineLeft = k === lowerBound ? -1 : V.get(k - 1) + 1;
-            step++;
-            const x = Math.min(Math.max(maxXofDLineTop, maxXofDLineLeft), seqX.length);
-            const y = x - k;
-            step++;
-            if (x > seqX.length || y > seqY.length) {
-              continue;
-            }
-            const newMaxX = getXAfterSnake(x, y);
-            V.set(k, newMaxX);
-            const lastPath = x === maxXofDLineTop ? paths.get(k + 1) : paths.get(k - 1);
-            paths.set(k, newMaxX !== x ? new SnakePath(lastPath, x, y, newMaxX - x) : lastPath);
-            if (V.get(k) === seqX.length && V.get(k) - k === seqY.length) {
-              break loop;
-            }
+          const newMaxX = getXAfterSnake(x, y);
+          V.set(k, newMaxX);
+          const lastPath = x === maxXofDLineTop ? paths.get(k + 1) : paths.get(k - 1);
+          paths.set(k, newMaxX !== x ? new SnakePath(lastPath, x, y, newMaxX - x) : lastPath);
+          if (V.get(k) === seqX.length && V.get(k) - k === seqY.length) {
+            break loop;
           }
         }
+      }
       let path = paths.get(k);
       const result = [];
       let lastAligningPosS1 = seqX.length;
@@ -12757,22 +12703,21 @@
       const sw = new StopWatch();
       const wordDefRegExp = new RegExp(wordDef, wordDefFlags);
       const seen = /* @__PURE__ */ new Set();
-      outer:
-        for (const url of modelUrls) {
-          const model = this._getModel(url);
-          if (!model) {
+      outer: for (const url of modelUrls) {
+        const model = this._getModel(url);
+        if (!model) {
+          continue;
+        }
+        for (const word of model.words(wordDefRegExp)) {
+          if (word === leadingWord || !isNaN(Number(word))) {
             continue;
           }
-          for (const word of model.words(wordDefRegExp)) {
-            if (word === leadingWord || !isNaN(Number(word))) {
-              continue;
-            }
-            seen.add(word);
-            if (seen.size > _EditorSimpleWorker._suggestionsLimit) {
-              break outer;
-            }
+          seen.add(word);
+          if (seen.size > _EditorSimpleWorker._suggestionsLimit) {
+            break outer;
           }
         }
+      }
       return { words: Array.from(seen), duration: sw.elapsed() };
     }
     // ---- END suggest --------------------------------------------------------------------------
@@ -19431,10 +19376,10 @@ Syntax: ${textToMarkedString(entry.syntax)}`;
       }, format: function(t4) {
         if (null === t4 || "object" != typeof t4)
           throw new TypeError('The "pathObject" argument must be of type Object. Received type ' + typeof t4);
-        return function(t5, e3) {
+        return (function(t5, e3) {
           var r3 = e3.dir || e3.root, n3 = e3.base || (e3.name || "") + (e3.ext || "");
           return r3 ? r3 === e3.root ? r3 + n3 : r3 + "/" + n3 : n3;
-        }(0, t4);
+        })(0, t4);
       }, parse: function(t4) {
         e2(t4);
         var r3 = { root: "", dir: "", base: "", ext: "", name: "" };
@@ -19500,9 +19445,9 @@ Syntax: ${textToMarkedString(entry.syntax)}`;
         query;
         fragment;
         constructor(t4, e3, r2, n2, i2, o2 = false) {
-          "object" == typeof t4 ? (this.scheme = t4.scheme || h, this.authority = t4.authority || h, this.path = t4.path || h, this.query = t4.query || h, this.fragment = t4.fragment || h) : (this.scheme = /* @__PURE__ */ function(t5, e4) {
+          "object" == typeof t4 ? (this.scheme = t4.scheme || h, this.authority = t4.authority || h, this.path = t4.path || h, this.query = t4.query || h, this.fragment = t4.fragment || h) : (this.scheme = /* @__PURE__ */ (function(t5, e4) {
             return t5 || e4 ? t5 : "file";
-          }(t4, o2), this.authority = e3 || h, this.path = function(t5, e4) {
+          })(t4, o2), this.authority = e3 || h, this.path = (function(t5, e4) {
             switch (t5) {
               case "https":
               case "http":
@@ -19510,7 +19455,7 @@ Syntax: ${textToMarkedString(entry.syntax)}`;
                 e4 ? e4[0] !== a2 && (e4 = a2 + e4) : e4 = a2;
             }
             return e4;
-          }(this.scheme, r2 || h), this.query = n2 || h, this.fragment = i2 || h, s(this, o2));
+          })(this.scheme, r2 || h), this.query = n2 || h, this.fragment = i2 || h, s(this, o2));
         }
         get fsPath() {
           return m(this, false);
@@ -19634,7 +19579,7 @@ Syntax: ${textToMarkedString(entry.syntax)}`;
       var A2 = r(470);
       const w = A2.posix || A2, x = "/";
       var P;
-      !function(t4) {
+      !(function(t4) {
         t4.joinPath = function(t5, ...e3) {
           return t5.with({ path: w.join(t5.path, ...e3) });
         }, t4.resolvePath = function(t5, ...e3) {
@@ -19652,7 +19597,7 @@ Syntax: ${textToMarkedString(entry.syntax)}`;
         }, t4.extname = function(t5) {
           return w.extname(t5.path);
         };
-      }(P || (P = {}));
+      })(P || (P = {}));
     })(), LIB = n;
   })();
   var { URI: URI22, Utils } = LIB;

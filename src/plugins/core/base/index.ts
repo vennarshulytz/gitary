@@ -208,7 +208,8 @@ export default createPlugin({
       xbook.layoutService.workbench.setLayout(PCLayout);
       xbook.layoutService.sidebar.show();
       xbook.layoutService.sidebar.setFullwidth(false);
-      xbook.layoutService.activityBar.show();
+      // Respect ActivityBarController's own cached visibility;
+      // default is visible on first load, and later relies on localStorage.
       xbook.commandService.registerCommand(CommandKeys.ToggleHome, () => {
         // xbook.layoutService.sidebar.toggle();
         xbook.layoutService.activityBar.toggle();

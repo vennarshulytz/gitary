@@ -1,27 +1,12 @@
-import { configureStore, createSlice } from "@reduxjs/toolkit";
 import { nanoid } from "nanoid";
 import { useEffect, useState } from "react";
-import type { Transform } from "redux-persist";
-import { persistReducer, persistStore } from "redux-persist";
-// import PouchDBStorage from "redux-persist-pouchdb";
-import persistLocalStorageRaw from "redux-persist/lib/storage";
-// import thunk from "redux-thunk";
-
-// Normalize redux-persist storage so it's always the actual storage object,
-// not a `{ default: storage }` module wrapper.
-const persistLocalStorage: Storage = (persistLocalStorageRaw as any).default
-  ? (persistLocalStorageRaw as any).default
-  : (persistLocalStorageRaw as any);
-
-const Storages = {
-  localStorage: persistLocalStorage,
-  // PouchDBStorage: PouchDBStorage,
-};
+import { createStore, type StoreApi } from "zustand/vanilla";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 export type PersistConfig = {
   name: string;
   type: "LocalStorage";
-  transforms?: Transform<any, any>[];
+  transforms?: any[];
 };
 
 export type TreeDataNode<T=any> = T & {
@@ -44,153 +29,111 @@ export const createTreeDataStore = <T extends { [k: string]: any }>({
   name = "treeData",
   initialState,
   primaryKey = "id",
-  middlewareConfig = {},
   persistConfig,
 }: {
   name?: string;
   initialState: TreeDataNode<T>;
   primaryKey?: string;
-  middlewareConfig?: any;
   persistConfig?: PersistConfig;
 }) => {
-  const slice = createSlice({
-    name,
-    initialState: {
-      data: initialState,
-    },
-    reducers: {
-      init: (state, action) => {
-        state.data = action.payload || initialState;
-      },
-      update: (
-        state,
-        action: { type: string; payload: { node: Partial<TreeDataNode<T>> } }
-      ) => {
-        const { node } = action.payload || {};
-        if (!node) return;
-        const findAndReplace = (
-          parent: TreeDataNode<T>,
-          node: Partial<TreeDataNode<T>>
-        ) => {
-          if (parent[primaryKey] === node[primaryKey]) {
-            Object.assign(parent, node);
-            return true;
-          } else if (parent.children) {
-            for (const child of parent.children) {
-              if (findAndReplace(child, node)) return true;
-            }
-          }
-          return false;
-        };
-        findAndReplace(state.data as TreeDataNode<T>, node);
-      },
-
-      add: (state, action) => {
-        const { node, parentId } = action.payload || {};
-        if (!node) return;
-        if (!parentId) {
-          state.data.push(node);
-        } else {
-          const findAndAdd = (
-            parent: TreeDataNode<T>,
-            node: TreeDataNode<T>
-          ) => {
-            if (parent[primaryKey] === parentId) {
-              if (!parent.children) parent.children = [];
-              parent.children.push(node);
-              return true;
-            } else if (parent.children) {
-              for (const child of parent.children) {
-                if (findAndAdd(child, node)) return true;
-              }
-            }
-            return false;
-          };
-          findAndAdd(state.data as TreeDataNode<T>, node);
-        }
-      },
-      delete: (state, action) => {
-        
-        const { id } = action.payload || {};
-        if (!id) return;
-        const findAndDelete = (parent: TreeDataNode<T>, id: string) => {
-          
-          if (parent.children) {
-            const index = parent.children.findIndex(
-              (node) => node[primaryKey] === id
-            );
-            
-            if (index !== -1) {
-              parent.children.splice(index, 1);
-              return true;
-            } else {
-              for (const child of parent.children) {
-                if (findAndDelete(child, id)) return true;
-              }
-            }
-          }
-          return false;
-        };
-        findAndDelete(state.data as TreeDataNode<T>, id);
-      },
-    },
-  });
-
-  const defaultMiddlewareConfig = {
-    serializableCheck: false,
-  };
-  let reducer: any = slice.reducer;
-  if (persistConfig) {
-    let storage;
-    switch (persistConfig.type) {
-      case "LocalStorage":
-        storage = Storages.localStorage;
-        break;
-      // case "PouchDB":
-      //   storage = new Storages.PouchDBStorage(new PouchDB(persistConfig.name));
-      //   break;
-      default:
-        storage = Storages.localStorage;
-        break;
-    }
-    reducer = persistReducer(
-      {
-        key: persistConfig.name,
-        storage: storage,
-        transforms: persistConfig.transforms || [],
-      },
-      slice.reducer
-    );
-  }
   type ChangeMonifier = (changes: TreeDataChange<T>[]) => any;
   const changeMonifierList: ChangeMonifier[] = [];
-  const diffMiddleware = (store) => (next) => (action) => {
-    const prevState = store.getState();
-    const result = next(action);
-    const nextState = store.getState();
-    const differences = diff(prevState, nextState);
-    if (differences) {
-      // 调用监听函数
-      changeMonifierList.forEach((changeMonifier) => {
-        changeMonifier(differences);
-      });
-    }
-    return result;
+
+  type StoreState = {
+    data: TreeDataNode<T>;
+    init: (root: TreeDataNode<T>) => void;
+    update: (node: Partial<TreeDataNode<T>>) => void;
+    add: (payload: { node: TreeDataNode<T>; parentId?: string }) => void;
+    delete: (id: string) => void;
   };
-  const store = configureStore({
-    reducer: {
-      [name]: reducer,
+
+  const createState = (set: any, get: any): StoreState => ({
+    data: initialState,
+    init: (root) => {
+      set({ data: root || initialState });
     },
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({
-        ...defaultMiddlewareConfig,
-        ...middlewareConfig,
-      }).concat([
-        // thunk,
-        diffMiddleware,
-      ]),
+    update: (node) => {
+      if (!node) return;
+      const applyUpdate = (parent: TreeDataNode<T>): boolean => {
+        if ((parent as any)[primaryKey] === (node as any)[primaryKey]) {
+          Object.assign(parent, node);
+          return true;
+        } else if (parent.children) {
+          for (const child of parent.children) {
+            if (applyUpdate(child)) return true;
+          }
+        }
+        return false;
+      };
+      set((state) => {
+        const cloned = structuredClone(state.data) as TreeDataNode<T>;
+        applyUpdate(cloned);
+        return { data: cloned };
+      });
+    },
+    add: ({ node, parentId }) => {
+      if (!node) return;
+      if (!parentId) {
+        // Root replace
+        set({ data: node });
+        return;
+      }
+      const applyAdd = (parent: TreeDataNode<T>): boolean => {
+        if ((parent as any)[primaryKey] === parentId) {
+          if (!parent.children) parent.children = [];
+          parent.children.push(node);
+          return true;
+        } else if (parent.children) {
+          for (const child of parent.children) {
+            if (applyAdd(child)) return true;
+          }
+        }
+        return false;
+      };
+      set((state) => {
+        const cloned = structuredClone(state.data) as TreeDataNode<T>;
+        applyAdd(cloned);
+        return { data: cloned };
+      });
+    },
+    delete: (id: string) => {
+      const applyDelete = (parent: TreeDataNode<T>, idToDelete: string) => {
+        if (!parent.children) return false;
+        const index = parent.children.findIndex(
+          (node) => (node as any)[primaryKey] === idToDelete
+        );
+        if (index !== -1) {
+          parent.children.splice(index, 1);
+          return true;
+        }
+        for (const child of parent.children) {
+          if (applyDelete(child, idToDelete)) return true;
+        }
+        return false;
+      };
+      set((state) => {
+        const cloned = structuredClone(state.data) as TreeDataNode<T>;
+        applyDelete(cloned, id);
+        return { data: cloned };
+      });
+    },
   });
-  if (persistConfig) persistStore(store);
+
+  let store: StoreApi<StoreState>;
+  if (persistConfig && persistConfig.type === "LocalStorage") {
+    const persisted = persist<StoreState, [], [], StoreState>(
+      (set, get) => createState(set, get),
+      {
+        name: persistConfig.name,
+        storage: createJSONStorage<StoreState>(() => window.localStorage),
+        // transforms are not wired through; if needed we can map them via
+        // serialize/deserialize.
+      }
+    );
+    store = createStore<StoreState>()(persisted);
+  } else {
+    store = createStore<StoreState>()(createState);
+  }
 
   function useSelectedState(store, selector) {
     const [selectedState, setSelectedState] = useState(
@@ -209,10 +152,7 @@ export const createTreeDataStore = <T extends { [k: string]: any }>({
   }
 
   const useData = () => {
-    return useSelectedState(
-      store,
-      (state) => state![name].data as TreeDataNode<T>
-    );
+    return useSelectedState(store, (state) => state.data as TreeDataNode<T>);
   };
 
   const findNode = (
@@ -229,19 +169,15 @@ export const createTreeDataStore = <T extends { [k: string]: any }>({
     return undefined;
   };
   const getNode = (id: string) => {
-    return findNode(
-      (store.getState()[name] as ReturnType<(typeof slice)["getInitialState"]>)
-        .data,
-      id
-    );
+    return findNode(store.getState().data as TreeDataNode<T>, id);
   };
   const useNode = (id: string) => {
     return useSelectedState(store, (state) => {
-      return findNode(state[name].data, id);
+      return findNode(state.data as TreeDataNode<T>, id);
     });
   };
   const useInternalSelector = (selector) => {
-    return useSelectedState(store, (state) => selector(state![name].data));
+    return useSelectedState(store, (state) => selector(state.data));
   };
   let observers: TreeDataObserver<any>[] = [];
 
@@ -259,15 +195,48 @@ export const createTreeDataStore = <T extends { [k: string]: any }>({
     observers = observers.filter((o) => o !== observer);
   };
   const getActions = () => {
-    const actions: typeof slice.actions = {} as any;
-    for (const actionName in slice.actions) {
-      actions[actionName] = (...args) => {
-        const action = slice.actions[actionName](...args);
-        store.dispatch(action);
-        notifyObservers(action);
-      };
-    }
-    return actions;
+    return {
+      init: (root: TreeDataNode<T>) => {
+        const prev = store.getState().data;
+        store.getState().init(root);
+        const next = store.getState().data;
+        const differences = diff(prev as any, next as any);
+        if (differences && differences.length) {
+          changeMonifierList.forEach((fn) => fn(differences as any));
+        }
+        notifyObservers({ type: `${name}/init`, payload: { node: root } });
+      },
+      update: (payload: { node: Partial<TreeDataNode<T>> }) => {
+        const prev = store.getState().data;
+        store.getState().update(payload.node);
+        const next = store.getState().data;
+        const differences = diff(prev as any, next as any);
+        if (differences && differences.length) {
+          changeMonifierList.forEach((fn) => fn(differences as any));
+        }
+        notifyObservers({ type: `${name}/update`, payload });
+      },
+      add: (payload: { node: TreeDataNode<T>; parentId?: string }) => {
+        const prev = store.getState().data;
+        store.getState().add(payload);
+        const next = store.getState().data;
+        const differences = diff(prev as any, next as any);
+        if (differences && differences.length) {
+          changeMonifierList.forEach((fn) => fn(differences as any));
+        }
+        notifyObservers({ type: `${name}/add`, payload });
+      },
+      delete: (payload: { id: string }) => {
+        const prev = store.getState().data;
+        store.getState().delete(payload.id);
+        const next = store.getState().data;
+        const differences = diff(prev as any, next as any);
+        if (differences && differences.length) {
+          changeMonifierList.forEach((fn) => fn(differences as any));
+        }
+        notifyObservers({ type: `${name}/delete`, payload });
+      },
+    };
   };
 
   const onChange = (handler: ChangeMonifier) => {
@@ -276,7 +245,11 @@ export const createTreeDataStore = <T extends { [k: string]: any }>({
       changeMonifierList.splice(changeMonifierList.indexOf(handler), 1);
   };
   return {
-    reduxStore: store,
+    // Backwards compatible `reduxStore`-like surface for existing subscribers.
+    reduxStore: {
+      getState: () => ({ [name]: { data: store.getState().data } }),
+      subscribe: (listener: () => void) => store.subscribe(listener),
+    },
     useSelector: useInternalSelector,
     useData: useData,
     useNode,
@@ -284,9 +257,7 @@ export const createTreeDataStore = <T extends { [k: string]: any }>({
     getActions,
     getNode,
     getData: () => {
-      return (
-        store.getState()[name] as ReturnType<(typeof slice)["getInitialState"]>
-      ).data;
+      return store.getState().data;
     },
     id: nanoid(),
     addObserver,

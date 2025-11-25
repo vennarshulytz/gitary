@@ -1,29 +1,14 @@
 import { createAtom } from "@/toolkit/factories/atom";
-import { configureStore, createSlice } from "@reduxjs/toolkit";
 import { nanoid } from "nanoid";
 import { useEffect, useState } from "react";
-import { batch } from "react-redux";
-import type { Transform } from "redux-persist";
-import { persistReducer, persistStore } from "redux-persist";
-// import PouchDBStorage from "redux-persist-pouchdb";
-import persistLocalStorageRaw from "redux-persist/lib/storage";
-// import thunk from "redux-thunk";
 import { ReplaySubject } from "rxjs";
+import { createStore, type StoreApi } from "zustand/vanilla";
+import { createJSONStorage, persist } from "zustand/middleware";
 
-// Some bundlers (and Node ESM) expose redux-persist storage as `{ default: storage }`.
-// Normalize to the actual storage object to avoid `storage.getItem is not a function`.
-const persistLocalStorage: Storage = (persistLocalStorageRaw as any).default
-  ? (persistLocalStorageRaw as any).default
-  : (persistLocalStorageRaw as any);
-
-const Storages = {
-  localStorage: persistLocalStorage,
-  // PouchDBStorage: PouchDBStorage,
-};
 export type PersistConfig = {
   name: string;
   type: "LocalStorage";
-  transforms?: Transform<any, any>[];
+  transforms?: any[];
 };
 type DataStoreAction<T> = {
   type: string;
@@ -40,126 +25,116 @@ export const createDataStore = <T extends { [k: string]: any }>({
   name = "dataLayer",
   initialState,
   primaryKey = "id",
-  middlewareConfig = {},
   persistConfig,
 }: {
   name?: string;
   initialState: T[];
   primaryKey?: string;
-  middlewareConfig?: any;
   persistConfig?: PersistConfig;
 }) => {
   const loadEvent$ = new ReplaySubject(1);
-  const slice = createSlice({
-    name,
-    initialState: {
-      data: initialState,
-      rehydrated: false,
-    },
-    reducers: {
-      init: (state, action) => {
-        state.data = action.payload || initialState;
-      },
-      upsert: (state, action) => {
-        const record = action.payload;
-        const pValue = record[primaryKey];
-        const oldRecord = state.data.find(
-          (record) => record[primaryKey] === pValue
-        );
-        if (oldRecord) {
-          Object.assign(oldRecord, record);
-        } else {
-          state.data.push(record);
-        }
-      },
-      reduce: (state, action) => {
-        state.data = action.payload(state.data);
-      },
-      update: (state, action) => {
-        // transforms(state);
-        const record = action.payload;
-        const pValue = record[primaryKey];
-        const oldRecord = state.data.find(
-          (record) => record[primaryKey] === pValue
-        );
-        if (oldRecord) {
-          Object.assign(oldRecord, record);
-        }
-      },
-      clear: (state) => {
-        state.data.splice(0, state.data.length);
-      },
-      add: (state, action) => {
-        state.data.push(action.payload);
-      },
-      delete: (state, action) => {
-        const _record = state.data.find(
-          (record) => record[primaryKey] === action.payload
-        )!;
-        const index = state.data.indexOf(_record);
-        if (index !== -1) {
-          state.data.splice(index, 1);
-        }
-      },
-      __rehydrationCompleted: (state, action) => {
-        state.rehydrated = action.payload === undefined ? action.payload : true;
-      },
-    },
-  });
-  const defaultMiddlewareConfig = {
-    serializableCheck: false,
-  };
-  let reducer: any = slice.reducer;
-  if (persistConfig) {
-    let storage;
-    switch (persistConfig.type) {
-      case "LocalStorage":
-        storage = Storages.localStorage;
-        break;
-      // case "PouchDB":
-      //   storage = new Storages.PouchDBStorage(new PouchDB(persistConfig.name));
-      //   break;
-      default:
-        storage = Storages.localStorage;
-        break;
-    }
-    reducer = persistReducer(
-      {
-        key: persistConfig.name,
-        storage: storage,
-        transforms: persistConfig.transforms || [],
-      },
-      slice.reducer
-      // () => {
-      //   // slice.actions.rehydrationCompleted(true);
-      // }
-    );
-  }
-  const store = configureStore({
-    reducer: {
-      [name]: reducer,
-    },
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({
-        ...defaultMiddlewareConfig,
-        ...middlewareConfig,
-      }).concat([
-        // thunk
-      ]),
-  });
-
   const atom = createAtom<{
     events: {
       load: [];
     };
   }>();
 
-  if (persistConfig)
-    persistStore(store, {}, () => {
-      store.dispatch(slice.actions.__rehydrationCompleted(true));
-      atom.emit("load");
-      loadEvent$.next(true);
-    });
+  type StoreState = {
+    data: T[];
+    rehydrated: boolean;
+    init: (items: T[]) => void;
+    upsert: (record: T) => void;
+    reduce: (fn: (data: T[]) => T[]) => void;
+    update: (record: Partial<T>) => void;
+    clear: () => void;
+    add: (record: T) => void;
+    delete: (id: string) => void;
+  };
+
+  const createState = (set: any, get: any): StoreState => ({
+    data: initialState,
+    rehydrated: !persistConfig,
+    init: (items) => {
+      set({ data: items || initialState });
+    },
+    upsert: (record) => {
+      set((state) => {
+        const data = state.data.slice();
+        const pValue = (record as any)[primaryKey];
+        const index = data.findIndex(
+          (item) => (item as any)[primaryKey] === pValue
+        );
+        if (index >= 0) {
+          data[index] = { ...data[index], ...record };
+        } else {
+          data.push(record);
+        }
+        return { data };
+      });
+    },
+    reduce: (fn) => {
+      set((state) => ({ data: fn(state.data) }));
+    },
+    update: (record) => {
+      set((state) => {
+        const data = state.data.slice();
+        const pValue = (record as any)[primaryKey];
+        const index = data.findIndex(
+          (item) => (item as any)[primaryKey] === pValue
+        );
+        if (index >= 0) {
+          data[index] = { ...data[index], ...record };
+        }
+        return { data };
+      });
+    },
+    clear: () => {
+      set({ data: [] });
+    },
+    add: (record) => {
+      set((state) => ({ data: [...state.data, record] }));
+    },
+    delete: (id) => {
+      set((state) => ({
+        data: state.data.filter(
+          (record) => (record as any)[primaryKey] !== id
+        ),
+      }));
+    },
+  });
+
+  let store: StoreApi<StoreState>;
+
+  if (persistConfig && persistConfig.type === "LocalStorage") {
+    let apiRef: StoreApi<StoreState> | undefined;
+    const persisted = persist<StoreState, [], [], StoreState>(
+      (set, get, api) => {
+        apiRef = api;
+        return createState(set, get);
+      },
+      {
+        name: persistConfig.name,
+        storage: createJSONStorage<StoreState>(() => window.localStorage),
+        // We don't currently use transforms; if needed, we can map them via
+        // `serialize`/`deserialize` in the future.
+        onRehydrateStorage: () => {
+          return () => {
+            if (apiRef) {
+              apiRef.setState({ rehydrated: true }, false);
+            }
+            atom.emit("load");
+            loadEvent$.next(true);
+          };
+        },
+      }
+    );
+    store = createStore<StoreState>()(persisted);
+  } else {
+    store = createStore<StoreState>()(createState);
+    // Non-persisted stores are considered loaded immediately
+    atom.emit("load");
+    loadEvent$.next(true);
+  }
 
   function useSelectedState(store, selector) {
     const [selectedState, setSelectedState] = useState(
@@ -180,16 +155,16 @@ export const createDataStore = <T extends { [k: string]: any }>({
 
   const useData = () => {
     return useSelectedState(store, (state) => {
-      return state![name].data as T[];
+      return state.data as T[];
     }) as T[];
   };
   const useRecord = (id: string) => {
     return useSelectedState(store, (state) => {
-      return (state![name].data as T[]).find((item) => item[primaryKey] === id);
+      return (state.data as T[]).find((item) => item[primaryKey] === id);
     }) as T | undefined;
   };
   const useInternalSelector = (selector) => {
-    return useSelectedState(store, (state) => selector(state![name].data));
+    return useSelectedState(store, (state) => selector(state.data));
   };
   let observers: DataLayerObserver<any>[] = [];
 
@@ -207,45 +182,68 @@ export const createDataStore = <T extends { [k: string]: any }>({
     observers = observers.filter((o) => o !== observer);
   };
   const getActions = () => {
-    const actions: typeof slice.actions = {} as any;
-    for (const actionName in slice.actions) {
-      actions[actionName] = (...args) => {
-        // if(args.length===0)args=[undefined];
-        const action = slice.actions[actionName](...args);
-        store.dispatch(action);
-        
-        notifyObservers(action);
-      };
-    }
-    return actions;
+    return {
+      init: (items: T[]) => {
+        store.getState().init(items);
+        notifyObservers({ type: `${name}/init`, payload: items as any });
+      },
+      upsert: (record: T) => {
+        store.getState().upsert(record);
+        notifyObservers({ type: `${name}/upsert`, payload: record });
+      },
+      reduce: (fn: (data: T[]) => T[]) => {
+        store.getState().reduce(fn);
+        notifyObservers({ type: `${name}/reduce`, payload: fn as any });
+      },
+      update: (record: Partial<T>) => {
+        store.getState().update(record);
+        notifyObservers({ type: `${name}/update`, payload: record as any });
+      },
+      clear: () => {
+        store.getState().clear();
+        notifyObservers({ type: `${name}/clear` });
+      },
+      add: (record: T) => {
+        store.getState().add(record);
+        notifyObservers({ type: `${name}/add`, payload: record });
+      },
+      delete: (id: string) => {
+        store.getState().delete(id);
+        notifyObservers({ type: `${name}/delete`, payload: id as any });
+      },
+    };
   };
   const applyChanges = (changes: DataChange<T>[]) => {
-    batch(() => {
-      changes.forEach((change) => {
-        switch (change.type) {
-          case "add":
-            getActions().add(change.value);
-            break;
-          case "delete":
-            getActions().delete(change.id);
-            break;
-          case "update":
-            getActions().update(change.value);
-            break;
-        }
-      });
+    const actions = getActions();
+    changes.forEach((change) => {
+      switch (change.type) {
+        case "add":
+          if (change.value) actions.add(change.value as T);
+          break;
+        case "delete":
+          actions.delete(change.id);
+          break;
+        case "update":
+          if (change.value) actions.update(change.value as Partial<T>);
+          break;
+      }
     });
   };
   const getData = () => {
-    return (store.getState() as { [k: string]: { data: T[] } })[name].data;
+    return store.getState().data;
   };
   const getRecord = (id) => {
-    return (store.getState() as { [k: string]: { data: T[] } })[name].data.find(
-      (record) => record[primaryKey] === id
-    );
+    return store
+      .getState()
+      .data.find((record) => (record as any)[primaryKey] === id);
   };
   return {
-    reduxStore: store,
+    // Backwards compatible shape: an object that looks like a Redux store
+    // for existing callers that only rely on `getState`/`subscribe`.
+    reduxStore: {
+      getState: () => ({ [name]: { data: store.getState().data } }),
+      subscribe: (listener: () => void) => store.subscribe(listener),
+    },
     useSelector: useInternalSelector,
     useData: useData,
     useRecord,

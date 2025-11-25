@@ -3,7 +3,7 @@ import { createFolderTreePlugin } from "@/plugins/space/folderTreeService/plugin
 import { TreeEventKeys, TreeNodeTypeEnum, TreeServicePoints } from "@/plugins/space/folderTreeService/tokens";
 import { FolderTreeNode } from "@/plugins/space/folderTreeService/types";
 import { joinPath } from "@/toolkit/utils/path";
-import { nanoid } from "@reduxjs/toolkit";
+import { nanoid } from "nanoid";
 import { fs } from "xbook/services";
 import { spaceHelper } from "@/helpers/space.helper";
 import xbook from "xbook/index";

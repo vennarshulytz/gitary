@@ -1,7 +1,7 @@
 import { createConstraintEventBus } from "@/toolkit/factories/eventBus/constraintEventBus";
 import { createTypedRegistry } from "@/toolkit/factories/registry";
 import { createServiceBus } from "@/toolkit/factories/serviceBus";
-import { nanoid } from "@reduxjs/toolkit";
+import { nanoid } from "nanoid";
 
 export interface AtomSpec<
   TEvents extends Record<string, []> = any,

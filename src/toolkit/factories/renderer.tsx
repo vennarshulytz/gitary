@@ -1,8 +1,7 @@
 import { SafeAny } from "@/toolkit/types";
 import { Alert, Box, Button } from "@chakra-ui/react";
-import { combineReducers, configureStore, createSlice } from "@reduxjs/toolkit";
 import { ErrorBoundary } from "react-error-boundary";
-import { Provider, useSelector } from "react-redux";
+import { create } from "zustand";
 import xbook from "xbook/index";
 
 // 定义组件节点的类型
@@ -55,45 +54,40 @@ function DefaultErrorFallback({ error, resetErrorBoundary }) {
 export const createRenderer = (registryName: string = "componentRegistry") => {
   // 动态组件注册表
 
-  const slice = createSlice({
-    initialState: {} as ComponentRegistry,
-    name: registryName,
-    reducers: {
-      register(state, action) {
-        const { name, component, override } = action.payload;
-        if (state[name] && !override) return;
-        state[name] = component;
-      },
-    },
-  });
+  type RegistryState = {
+    registry: ComponentRegistry;
+    register: (name: string, component: ComponentNode, override?: boolean) => void;
+  };
 
-  const store = configureStore({
-    reducer: combineReducers({
-      [registryName]: slice.reducer,
-      // requests: requestSlice.reducer,
-    }),
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({ serializableCheck: false }),
-  });
+  const useRegistryStore = create<RegistryState>((set, get) => ({
+    registry: {},
+    register: (name, component, override = false) =>
+      set((state) => {
+        if (state.registry[name] && !override) return state;
+        return {
+          registry: {
+            ...state.registry,
+            [name]: component,
+          },
+        };
+      }),
+  }));
 
-  const getComponent = (state: ComponentRegistry, name: string) => {    
-    const component = state![registryName][name];
+  const getComponent = (registry: ComponentRegistry, name: string) => {
+    const component = registry[name];
     if (component) return component;
     else {
-      for (const namePattern in state![registryName]) {
-        
+      for (const namePattern in registry) {
         const matcher = matchPath(name, namePattern);
         if (matcher) {
-          return state![registryName][namePattern];
+          return registry[namePattern];
         }
       }
     }
   };
 
-  const useComponent = (name) =>
-    useSelector<SafeAny, ComponentNode>((state) => {
-      return getComponent(state, name);
-    });
+  const useComponent = (name: string) =>
+    useRegistryStore((state) => getComponent(state.registry, name));
 
   let ErrorFallback = DefaultErrorFallback;
   const setFallbackComponent = (fallback) => {
@@ -120,7 +114,7 @@ export const createRenderer = (registryName: string = "componentRegistry") => {
     component: ComponentNode,
     override: boolean = false
   ) => {
-    store.dispatch(slice.actions.register({ name, component, override }));
+    useRegistryStore.getState().register(name, component, override);
   };
 
   // 渲染系统
@@ -130,10 +124,11 @@ export const createRenderer = (registryName: string = "componentRegistry") => {
     const Component = useComponent(type);
     if (!Component) {
       // requestComponent(type);
-      
+
+      const registry = useRegistryStore.getState().registry;
 
       const NotFoundComponent =
-        getComponent(store.getState(), "NotFoundComponent") ||
+        getComponent(registry, "NotFoundComponent") ||
         DefaultNotFoundComponent;
 
       return <NotFoundComponent type={type} />;
@@ -164,13 +159,11 @@ export const createRenderer = (registryName: string = "componentRegistry") => {
   // 渲染
   const render = (layout: LayoutNode, key = 0) => {
     return (
-      <Provider key={key} store={store}>
-        <Renderer key={key} layout={layout} />
-      </Provider>
+      <Renderer key={key} layout={layout} />
     );
   };
   const getComponents = () => {
-    return store.getState();
+    return useRegistryStore.getState().registry;
   };
 
   return {

@@ -4,7 +4,7 @@ import {
 } from "@/plugins/space/folderTreeService/tokens";
 import { FolderTreeNode } from "@/plugins/space/folderTreeService/types";
 import { createTreeHelper } from "@/toolkit/components/tree/treePlugins";
-import { nanoid } from "@reduxjs/toolkit";
+import { nanoid } from "nanoid";
 import xbook from "xbook/index";
 import { t } from "@/i18n/utils";
 export default createTreeHelper<FolderTreeNode>().createPlugin({

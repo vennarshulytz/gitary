@@ -1,6 +1,6 @@
 import { FolderTreeNode } from "@/plugins/space/folderTreeService/types";
 import { createTreePlugin } from "@/toolkit/components/tree/treePlugins";
-import { nanoid } from "@reduxjs/toolkit";
+import { nanoid } from "nanoid";
 import { t } from "@/i18n/utils";
 
 export default createTreePlugin<FolderTreeNode>({

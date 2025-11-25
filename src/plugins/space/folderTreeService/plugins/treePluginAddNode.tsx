@@ -8,7 +8,7 @@ import {
 import { FolderTreeNode } from "@/plugins/space/folderTreeService/types";
 import { createTreeHelper } from "@/toolkit/components/tree/treePlugins";
 import { joinPath } from "@/toolkit/utils/path";
-import { nanoid } from "@reduxjs/toolkit";
+import { nanoid } from "nanoid";
 import xbook from "xbook/index";
 import { fs } from "xbook/services";
 import { t } from "@/i18n/utils";

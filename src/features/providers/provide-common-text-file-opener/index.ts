@@ -25,6 +25,17 @@ export default createPlugin({
       ],
       init: (uri: string) => {
         const pageId = `text-file-view:${uri}`;
+
+        // If this file is already open in a tab, just activate that tab
+        // instead of resetting its status back to "loading".
+        const existingPages =
+          xbook.layoutService.pageBox.getPageList?.() || [];
+        const existingPage = existingPages.find((page) => page.id === pageId);
+        if (existingPage) {
+          xbook.layoutService.pageBox.showPage(pageId);
+          return;
+        }
+
         xbook.layoutService.pageBox.addPage({
           id: pageId,
           title: uri,

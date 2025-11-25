@@ -20,6 +20,17 @@ export default createPlugin({
       match: [".md", ".markdown", ".MD"],
       init: (uri: string) => {
         const pageId = `zenmark-editor:${uri}`;
+
+        // If this markdown file is already open, just focus the existing tab
+        // so we don't reset its status back to "loading" without reloading.
+        const existingPages =
+          xbook.layoutService.pageBox.getPageList?.() || [];
+        const existingPage = existingPages.find((page) => page.id === pageId);
+        if (existingPage) {
+          xbook.layoutService.pageBox.showPage(pageId);
+          return;
+        }
+
         xbook.layoutService.pageBox.addPage({
           id: pageId,
           title: uri,

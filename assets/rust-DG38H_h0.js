@@ -1,0 +1,1 @@
+import{Gt as e,Wt as t}from"./monaco-DAysoKWz.js";export{t as conf,e as language};

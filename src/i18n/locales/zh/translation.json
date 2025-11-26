@@ -247,7 +247,15 @@
       "applyOperationsFromDescription": "connect 操作中的起始节点，可以是节点 ID 或节点文本。",
       "applyOperationsToDescription": "connect 操作中的终止节点，可以是节点 ID 或节点文本。",
       "applyOperationsTargetDescription": "rename_node/delete_node 操作的目标节点（ID 或文本）。",
-      "applyOperationsNewLabelDescription": "rename_node 操作的新文本标签。"
+      "applyOperationsNewLabelDescription": "rename_node 操作的新文本标签。",
+      "createDiagramDescription": "直接创建 Excalidraw 图表元素。主 Agent 可以直接生成元素数组并添加到画布。",
+      "createDiagramElementsDescription": "Excalidraw 元素数组。每个元素只需包含核心字段（type, x, y, width, height等），系统会自动补充其他必需字段。",
+      "createDiagramModeDescription": "添加模式：append（追加到现有元素）或 replace（替换所有元素）。",
+      "appendDiagramDescription": "追加 Excalidraw 图表元素到画布。只追加，不会替换现有元素。",
+      "appendDiagramElementsDescription": "Excalidraw 元素数组。每个元素只需包含核心字段（type, x, y, width, height等），系统会自动补充其他必需字段。",
+      "aiAppendDiagramDescription": "通过 AI 生成并追加 Excalidraw 图表元素到画布。只追加，不会替换现有元素。",
+      "aiAppendDiagramPromptDescription": "描述要生成的图表内容。",
+      "elementsRequired": "elements 参数必须是包含至少一个元素的数组。"
     }
   },
   "story": {

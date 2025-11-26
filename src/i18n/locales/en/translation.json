@@ -247,7 +247,15 @@
       "applyOperationsFromDescription": "Starting node in connect operation, can be a node ID or node text.",
       "applyOperationsToDescription": "Terminating node in connect operation, can be a node ID or node text.",
       "applyOperationsTargetDescription": "Target node (ID or text) for rename_node/delete_node operations.",
-      "applyOperationsNewLabelDescription": "New text label for rename_node operation."
+      "applyOperationsNewLabelDescription": "New text label for rename_node operation.",
+      "createDiagramDescription": "Directly create Excalidraw diagram elements. The main Agent can generate an element array and add it to the canvas.",
+      "createDiagramElementsDescription": "Excalidraw element array. Each element only needs to include core fields (type, x, y, width, height, etc.), and the system will automatically supplement other required fields.",
+      "createDiagramModeDescription": "Add mode: append (append to existing elements) or replace (replace all elements).",
+      "appendDiagramDescription": "Append Excalidraw diagram elements to the canvas. Only appends, does not replace existing elements.",
+      "appendDiagramElementsDescription": "Excalidraw element array. Each element only needs to include core fields (type, x, y, width, height, etc.), and the system will automatically supplement other required fields.",
+      "aiAppendDiagramDescription": "Generate and append Excalidraw diagram elements to the canvas via AI. Only appends, does not replace existing elements.",
+      "aiAppendDiagramPromptDescription": "Description of the diagram content to generate.",
+      "elementsRequired": "elements parameter must be an array containing at least one element."
     }
   },
   "story": {

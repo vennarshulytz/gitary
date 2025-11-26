@@ -1,7 +1,6 @@
 import type { Tool } from "@agent-labs/agent-chat";
 import { t } from "@/i18n/utils";
 import type {
-  ExcalidrawElement,
   ExcalidrawSummaryNode,
   ExcalidrawSummaryEdge,
   ExcalidrawSummaryResult,
@@ -14,11 +13,11 @@ import {
   distanceSq,
 } from "./utils";
 
-export const excalidrawGetSummaryTool: Tool<
+export const excalidrawAnalyzeTool: Tool<
   { maxNodes?: number },
   ExcalidrawSummaryResult
 > = {
-  name: "excalidraw_get_summary",
+  name: "excalidraw_analyze",
   description: t("excalidraw.tools.getSummaryDescription"),
   parameters: {
     type: "object",

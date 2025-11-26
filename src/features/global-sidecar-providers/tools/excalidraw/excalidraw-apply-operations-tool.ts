@@ -1,7 +1,6 @@
 import type { Tool } from "@agent-labs/agent-chat";
 import { t } from "@/i18n/utils";
 import type {
-  ExcalidrawElement,
   ExcalidrawOperation,
   ApplyOperationsResult,
 } from "./types";
@@ -14,11 +13,11 @@ import {
   createArrowBetween,
 } from "./utils";
 
-export const excalidrawApplyOperationsTool: Tool<
+export const excalidrawModifyTool: Tool<
   { operations: ExcalidrawOperation[] },
   ApplyOperationsResult
 > = {
-  name: "excalidraw_apply_operations",
+  name: "excalidraw_modify",
   description: t("excalidraw.tools.applyOperationsDescription"),
   parameters: {
     type: "object",

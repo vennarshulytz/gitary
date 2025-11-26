@@ -1,5 +1,6 @@
 import { aiGateway } from "@/services/ai/gateway";
 import type { ExcalidrawInitialDataState } from "@excalidraw/excalidraw/types";
+import { validateAndCompleteElements } from "@/features/global-sidecar-providers/tools/excalidraw/element-validator";
 
 type ExcalidrawElement = NonNullable<
   ExcalidrawInitialDataState["elements"]
@@ -110,67 +111,7 @@ export class ExcalidrawAIService {
         throw new Error("AI 返回的不是数组格式");
       }
 
-      const validatedElements = elements.map((element, index) => {
-        const timestamp = Date.now() + index;
-        const baseElement = {
-          ...element,
-          id: element.id || `element-${timestamp}`,
-          version: element.version || 141,
-          versionNonce: element.versionNonce || timestamp,
-          updated: element.updated || timestamp,
-          seed: element.seed || timestamp,
-          isDeleted: false,
-          groupIds: element.groupIds || [],
-          frameId: element.frameId || null,
-          boundElements: element.boundElements || [],
-          link: element.link || null,
-          locked: element.locked || false,
-          opacity: element.opacity ?? 100,
-          angle: element.angle || 0,
-          roughness: element.roughness ?? 1,
-          strokeWidth: element.strokeWidth ?? 2,
-          strokeStyle: element.strokeStyle || "solid",
-          fillStyle: element.fillStyle || "solid",
-          strokeColor: element.strokeColor || "#1e1e1e",
-          backgroundColor: element.backgroundColor || "transparent",
-        } as unknown as ExcalidrawElement;
-
-        if (element.type === "text" && "text" in element) {
-          const textElement = element as Record<string, unknown>;
-          const fontSize = (textElement.fontSize as number) ?? 20;
-          const height = (textElement.height as number) ?? fontSize * 1.5;
-          return {
-            ...baseElement,
-            text: (textElement.text as string) || "",
-            fontSize,
-            fontFamily: (textElement.fontFamily as number) ?? 1,
-            textAlign: (textElement.textAlign as string) || "center",
-            verticalAlign: (textElement.verticalAlign as string) || "middle",
-            originalText: (textElement.originalText as string) || (textElement.text as string) || "",
-            lineHeight: (textElement.lineHeight as number) ?? 1.25,
-            baseline: (textElement.baseline as number) ?? Math.round(height * 0.8),
-            containerId: (textElement.containerId as string | null) || null,
-          } as unknown as ExcalidrawElement;
-        }
-
-        if (element.type === "arrow" && "points" in element) {
-          const arrowElement = element as Record<string, unknown>;
-          const points = (arrowElement.points as number[][]) || [];
-          return {
-            ...baseElement,
-            points,
-            lastCommittedPoint: (arrowElement.lastCommittedPoint as number[] | null) || (points.length > 0 ? points[points.length - 1] : null),
-            startArrowhead: (arrowElement.startArrowhead as string | null) ?? null,
-            endArrowhead: (arrowElement.endArrowhead as string | null) ?? "arrow",
-            startBinding: (arrowElement.startBinding as unknown) || null,
-            endBinding: (arrowElement.endBinding as unknown) || null,
-          } as unknown as ExcalidrawElement;
-        }
-
-        return baseElement;
-      });
-
-      return validatedElements;
+      return validateAndCompleteElements(elements);
     } catch (error) {
       console.error("Error generating diagram:", error);
       throw new Error(

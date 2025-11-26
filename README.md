@@ -29,6 +29,11 @@ For more details, see the [Gitary Companion README](browser-extension/gitary-com
 </div>
 
 <div align="center">
+  <img src="images/screenshots/gitary-screenshot-drawio.png" alt="Gitary Draw.io Welcome" width="800"/>
+  <p><em>Draw.io diagram editor - Create professional flowcharts, UML diagrams, and network diagrams</em></p>
+</div>
+
+<div align="center">
   <img src="images/screenshots/gitary-screenshot-welcome-markdown.png" alt="Gitary Markdown Welcome" width="800"/>
   <p><em>Notion-like Markdown editor with live preview</em></p>
 </div>

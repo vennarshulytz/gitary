@@ -30,6 +30,11 @@
 </div>
 
 <div align="center">
+  <img src="images/screenshots/gitary-screenshot-drawio.png" alt="Gitary Draw.io 欢迎界面" width="800"/>
+  <p><em>Draw.io 图表编辑器 - 创建专业的流程图、UML 图和网络图</em></p>
+</div>
+
+<div align="center">
   <img src="images/screenshots/gitary-screenshot-welcome-markdown.png" alt="Gitary Markdown 欢迎界面" width="800"/>
   <p><em>类 Notion 的 Markdown 编辑器，支持实时预览</em></p>
 </div>

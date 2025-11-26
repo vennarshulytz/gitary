@@ -11,6 +11,8 @@ import markdownTutorialContentZh from "./markdown-tutorial.md?raw";
 import markdownTutorialContentEn from "./markdown-tutorial.en.md?raw";
 import excalidrawExampleZh from "./excalidraw-example-zh.json?raw";
 import excalidrawExampleEn from "./excalidraw-example-en.json?raw";
+import drawioExampleZh from "./drawio-example-zh.xml?raw";
+import drawioExampleEn from "./drawio-example-en.xml?raw";
 
 const cache = CacheController.create({
   scope: "spaceStateCache",
@@ -64,6 +66,11 @@ const getExcalidrawExampleContent = (): string => {
   return lang === "zh" ? excalidrawExampleZh : excalidrawExampleEn;
 };
 
+const getDrawioExampleContent = (): string => {
+  const lang = getCurrentLanguage();
+  return lang === "zh" ? drawioExampleZh : drawioExampleEn;
+};
+
 export const pluginAddInitialIndexedDbSpace = createPlugin({
   initilize(xbook) {
     // Use singleton spaceService directly
@@ -107,13 +114,16 @@ export const pluginAddInitialIndexedDbSpace = createPlugin({
           const connectGitFileName = lang === "en" ? "/Connect-Git-Repository.md" : "/连接-Git-仓库.md";
           const markdownTutorialFileName = lang === "en" ? "/Markdown-Tutorial.md" : "/Markdown-教程.md";
           const excalidrawExampleFileName = lang === "zh" ? "/Excalidraw-示例.excalidraw.json" : "/Excalidraw-Example.excalidraw.json";
+          const drawioExampleFileName = lang === "zh" ? "/Draw.io-示例.drawio" : "/Draw.io-Example.drawio";
           const markdownTutorialContent = getMarkdownTutorialContent();
           const excalidrawExampleContent = getExcalidrawExampleContent();
+          const drawioExampleContent = getDrawioExampleContent();
           
           await createFileIfNotExists("/README.md", readMeContent);
           await createFileIfNotExists(connectGitFileName, connectGitContent);
           await createFileIfNotExists(markdownTutorialFileName, markdownTutorialContent);
           await createFileIfNotExists(excalidrawExampleFileName, excalidrawExampleContent);
+          await createFileIfNotExists(drawioExampleFileName, drawioExampleContent);
           
           cache.set(space.id, {
             ...cache.get(space.id, getDefaultSpaceState()),

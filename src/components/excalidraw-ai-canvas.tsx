@@ -1,12 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
-import { useTranslation } from "react-i18next";
-import { Excalidraw } from "@excalidraw/excalidraw";
-import type {
-  ExcalidrawInitialDataState,
-  ExcalidrawImperativeAPI,
-} from "@excalidraw/excalidraw/types";
-import "@excalidraw/excalidraw/index.css";
-import { Save, CircleDot, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { ExcalidrawAIIcon } from "@/components/icons/ai-assistant-icon";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -14,10 +6,18 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ExcalidrawAIIcon } from "@/components/icons/ai-assistant-icon";
 import { useExcalidrawAI } from "@/hooks/use-excalidraw-ai";
-import { useMemoizedFn } from "@/hooks/use-memoized-fn";
 import { useExcalidrawRuntime } from "@/hooks/use-excalidraw-runtime";
+import { useMemoizedFn } from "@/hooks/use-memoized-fn";
+import { Excalidraw } from "@excalidraw/excalidraw";
+import "@excalidraw/excalidraw/index.css";
+import type {
+  ExcalidrawImperativeAPI,
+  ExcalidrawInitialDataState
+} from "@excalidraw/excalidraw/types";
+import { AlertCircle, CheckCircle2, CircleDot, Loader2, Save } from "lucide-react";
+import { useCallback, useMemo, useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 // Feature flag: 暂时隐藏 Excalidraw AI 入口
 const ENABLE_EXCALIDRAW_AI = false;
@@ -26,35 +26,48 @@ type ExcalidrawElement = NonNullable<
   ExcalidrawInitialDataState["elements"]
 >[number];
 type BinaryFiles = NonNullable<ExcalidrawInitialDataState["files"]>;
+type AppState = NonNullable<ExcalidrawInitialDataState["appState"]>;
 
-export interface ExcalidrawSceneValue {
-  elements?: readonly ExcalidrawElement[];
+export type ExcalidrawSceneValue = {
+  elements?: ExcalidrawElement[];
   files?: BinaryFiles;
+  appState?: AppState;
 }
 
 // 兼容旧命名，供上层文件读写存储使用。
 export type StoredFileData = ExcalidrawSceneValue;
 
+
+export enum ExcalidrawSaveStatus {
+  IDLE = "idle",
+  DIRTY = "dirty",
+  SAVING = "saving",
+  SAVED = "saved",
+  ERROR = "error"
+}
+
 interface ExcalidrawAICanvasProps {
-  value: ExcalidrawSceneValue | null;
+  initialValue: ExcalidrawSceneValue | null;
   onChange: (next: ExcalidrawSceneValue) => void;
 
   // 仅用于展示保存状态，由上层控制。
-  saveStatus?: "idle" | "dirty" | "saving" | "saved" | "error";
+  saveStatus?: ExcalidrawSaveStatus;
   onSaveClick?: () => void;
   showSaveStatus?: boolean;
 }
 
-function normalizeSceneValue(
+
+export function normalizeSceneValue(
   value: ExcalidrawSceneValue | null | undefined,
 ): ExcalidrawSceneValue {
   return {
     elements: value?.elements ?? [],
     files: value?.files,
+    appState: value?.appState,
   };
 }
 
-function buildSceneSnapshot(scene: ExcalidrawSceneValue): string {
+export function buildSceneSnapshot(scene: ExcalidrawSceneValue): string {
   return JSON.stringify({
     elements: scene.elements ?? [],
     files: scene.files ?? undefined,
@@ -62,7 +75,7 @@ function buildSceneSnapshot(scene: ExcalidrawSceneValue): string {
 }
 
 export function ExcalidrawAICanvas({
-  value,
+  initialValue,
   onChange,
   saveStatus,
   onSaveClick,
@@ -70,14 +83,11 @@ export function ExcalidrawAICanvas({
 }: ExcalidrawAICanvasProps) {
   const { t } = useTranslation();
 
+  const normalizedInitialValue = useMemo(() => normalizeSceneValue(initialValue), [initialValue]);
+
   const excalidrawRef = useRef<ExcalidrawImperativeAPI | null>(null);
   // 当前场景，仅用于 runtime 工具调用；源数据由外部 value 控制。
-  const sceneRef = useRef<ExcalidrawSceneValue>(
-    normalizeSceneValue(value),
-  );
-  // 本组件内部用于去重的快照，避免 Excalidraw 在内容未变时重复触发 onChange
-  const lastLocalSnapshotRef = useRef<string | null>(null);
-
+  const sceneRef = useRef<ExcalidrawSceneValue>(normalizedInitialValue);
   const memoizedOnChange = useMemoizedFn(onChange);
 
   const { openExcalidrawAssistant } = useExcalidrawAI({
@@ -85,27 +95,6 @@ export function ExcalidrawAICanvas({
     excalidrawRef,
     onChange: memoizedOnChange,
   });
-
-  // 外部 value 变化时，同步到本地快照。
-  useEffect(() => {
-    const next = normalizeSceneValue(value);
-    sceneRef.current = next;
-
-    // 更新本地快照，用于去重。
-    try {
-      const snapshot = buildSceneSnapshot(next);
-      lastLocalSnapshotRef.current = snapshot;
-    } catch {
-      // ignore
-    }
-
-    // 将外部 value 同步到 Excalidraw 画布。
-    if (excalidrawRef.current && next.elements) {
-      excalidrawRef.current.updateScene({
-        elements: next.elements as ExcalidrawElement[],
-      });
-    }
-  }, [value]);
 
   // 将当前 Excalidraw 场景暴露给 runtime，便于工具读取/更新。
   useExcalidrawRuntime({
@@ -117,30 +106,45 @@ export function ExcalidrawAICanvas({
   const handleExcalidrawChange = useCallback(
     (
       elements: readonly ExcalidrawElement[],
-      _appState: unknown,
+      appState: AppState,
       files: BinaryFiles,
     ) => {
       const next: ExcalidrawSceneValue = {
-        elements,
+        elements: elements as ExcalidrawElement[],
         files,
+        appState,
       };
-
-      // 构建本地快照，若与上一次相同，则认为没有实际内容变更，避免死循环。
-      try {
-        const snapshot = buildSceneSnapshot(next);
-        if (snapshot === lastLocalSnapshotRef.current) {
-          return;
-        }
-        lastLocalSnapshotRef.current = snapshot;
-      } catch {
-        // 若快照构建失败，仍然继续，让上层自行处理。
-      }
-
       sceneRef.current = next;
       memoizedOnChange(next);
     },
     [memoizedOnChange],
   );
+
+  const renderSaveStatusIcon = () => {
+    if (saveStatus === ExcalidrawSaveStatus.SAVING) {
+      return <Loader2 className="h-4 w-4 animate-spin" />;
+    }
+    if (saveStatus === ExcalidrawSaveStatus.DIRTY) {
+      return <CircleDot className="h-4 w-4" />;
+    }
+    if (saveStatus === ExcalidrawSaveStatus.ERROR) {
+      return <AlertCircle className="h-4 w-4 text-destructive" />;
+    }
+    return <CheckCircle2 className="h-4 w-4 text-green-600" />;
+  };
+
+  const renderSaveStatusTooltip = () => {
+    if (saveStatus === ExcalidrawSaveStatus.SAVING) {
+      return t("excalidraw.saving");
+    }
+    if (saveStatus === ExcalidrawSaveStatus.DIRTY) {
+      return t("excalidraw.edited");
+    }
+    if (saveStatus === ExcalidrawSaveStatus.ERROR) {
+      return t("excalidraw.saveError");
+    }
+    return t("excalidraw.saved");
+  };
 
   return (
     <div className="h-full w-full flex flex-col bg-background overflow-hidden">
@@ -153,25 +157,11 @@ export function ExcalidrawAICanvas({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center justify-center w-8 h-8 rounded-full bg-background/80 border border-border/60 text-muted-foreground">
-                        {saveStatus === "saving" ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : saveStatus === "dirty" ? (
-                          <CircleDot className="h-4 w-4" />
-                        ) : saveStatus === "error" ? (
-                          <AlertCircle className="h-4 w-4 text-destructive" />
-                        ) : (
-                          <CheckCircle2 className="h-4 w-4 text-green-600" />
-                        )}
+                        {renderSaveStatusIcon()}
                       </div>
                     </TooltipTrigger>
                     <TooltipContent>
-                      {saveStatus === "saving"
-                        ? t("excalidraw.saving")
-                        : saveStatus === "dirty"
-                          ? t("excalidraw.edited")
-                          : saveStatus === "error"
-                            ? t("excalidraw.saveError")
-                            : t("excalidraw.saved")}
+                      {renderSaveStatusTooltip()}
                     </TooltipContent>
                   </Tooltip>
                   {onSaveClick && (
@@ -196,7 +186,10 @@ export function ExcalidrawAICanvas({
             )}
 
             <Excalidraw
-              initialData={sceneRef.current}
+              initialData={{
+                ...normalizedInitialValue,
+                scrollToContent: true,
+              }}
               excalidrawAPI={(api) => {
                 excalidrawRef.current = api;
               }}

@@ -1,49 +1,28 @@
 import {
   ExcalidrawAICanvas,
+  ExcalidrawSaveStatus,
   type ExcalidrawSceneValue,
   type StoredFileData,
 } from "@/components/excalidraw-ai-canvas";
+import { useMemoizedFn } from "@/hooks/use-memoized-fn";
 import { Uri } from "@/toolkit/vscode/uri";
 import { FC, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BehaviorSubject } from "rxjs";
 import { debounceTime, distinctUntilChanged, filter, skip } from "rxjs/operators";
-import { useMemoizedFn } from "@/hooks/use-memoized-fn";
-import { useBehaviorSubjectValue } from "@/hooks/use-behavior-subject-value";
 import xbook from "xbook/index";
 
-type SaveStatus = "idle" | "dirty" | "saving" | "saved" | "error";
 
 function buildSceneSnapshot(value: ExcalidrawSceneValue | null): string {
-  if (!value) return "null";
-  const elements = (value.elements ?? []).map((el) => {
-    const element = el as Record<string, unknown>;
-    const {
-      version: _version,
-      versionNonce: _versionNonce,
-      updated: _updated,
-      seed: _seed,
-      ...rest
-    } = element ?? {};
-    return rest;
-  });
   return JSON.stringify({
-    elements,
-    files: value.files ?? undefined,
+    elements: value?.elements,
+    files: value?.files,
   });
 }
 
-export const AppExcalidraw: FC<{
-  uri: string;
-}> = ({ uri }) => {
-  const { t } = useTranslation();
-  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
-  const scene$ = useMemo(
-    () => new BehaviorSubject<ExcalidrawSceneValue | null>(null),
-    [],
-  );
-  const scene = useBehaviorSubjectValue(scene$);
-
+export const useStoragedScene = (uri: string) => {
+  const [scene, setScene] = useState<ExcalidrawSceneValue | null>(null);
+  const [loading, setLoading] = useState(false);
   const loadData = useMemoizedFn(
     async (): Promise<StoredFileData | null> => {
       try {
@@ -56,7 +35,7 @@ export const AppExcalidraw: FC<{
           return null;
         }
         console.log("loadData", { parsed });
-        return parsed;
+        return normalizeValueForStorage(parsed);
       } catch {
         console.error("loadData error");
         // New files or read errors behave as empty scene
@@ -64,41 +43,59 @@ export const AppExcalidraw: FC<{
       }
     },
   );
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    (async () => {
+      const data = await loadData();
+      if (cancelled) return;
+      setScene(data);
+      setLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [uri, loadData]);
+  return { scene, loading };
+};
+
+export const normalizeValueForStorage = (value: ExcalidrawSceneValue): ExcalidrawSceneValue => {
+  return {
+    elements: value.elements,
+    files: value.files,
+    appState: value.appState ? {
+      zoom: value.appState.zoom
+    } : undefined,
+  };
+};
+
+export const AppExcalidraw: FC<{
+  uri: string;
+}> = ({ uri }) => {
+  const { t } = useTranslation();
+  const [saveStatus, setSaveStatus] = useState<ExcalidrawSaveStatus>(ExcalidrawSaveStatus.IDLE);
+  const scene$ = useMemo(
+    () => new BehaviorSubject<ExcalidrawSceneValue | null>(null),
+    [],
+  );
+  const { scene: initialScene, loading: initialSceneLoading } = useStoragedScene(uri);
+
+  useEffect(() => {
+    if (initialScene && !initialSceneLoading) {
+      scene$.next(initialScene);
+    }
+  }, [initialScene, initialSceneLoading, scene$]);
+
 
   const saveData = useMemoizedFn(async (value: ExcalidrawSceneValue) => {
-    const payload: StoredFileData = {
-      elements: value.elements ?? [],
-      files: value.files ?? undefined,
-    };
-    console.log("saveData", { payload });
+    const normalized = normalizeValueForStorage(value);
     await xbook.fs.writeFile(
       Uri.parse(uri),
-      new TextEncoder().encode(JSON.stringify(payload)),
+      new TextEncoder().encode(JSON.stringify(normalized)),
       { create: true, overwrite: true },
     );
   });
 
-  // 初始化 / 读取文件
-  useEffect(() => {
-    let cancelled = false;
-    setSaveStatus("idle");
-
-    (async () => {
-      const data = await loadData();
-      if (cancelled) return;
-
-      const initial: ExcalidrawSceneValue = {
-        elements: data?.elements ?? [],
-        files: data?.files,
-      };
-      setSaveStatus("saved");
-      scene$.next(initial);
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [uri, loadData, scene$]);
 
   // 场景变化 → 防抖 → 去重 → 自动保存
   useEffect(() => {
@@ -116,35 +113,37 @@ export const AppExcalidraw: FC<{
       )
       .subscribe(async (value) => {
         try {
-          setSaveStatus("saving");
+          setSaveStatus(ExcalidrawSaveStatus.SAVING);
           await saveData(value);
-          setSaveStatus("saved");
+          setSaveStatus(ExcalidrawSaveStatus.SAVED);
         } catch (error) {
           console.error("Auto save excalidraw data failed:", error);
-          setSaveStatus("error");
+          setSaveStatus(ExcalidrawSaveStatus.ERROR);
         }
       });
 
     return () => {
       sub.unsubscribe();
     };
-  }, [scene$, saveData]);
+  }, [scene$]);
 
   const handleSceneChange = useMemoizedFn((next: ExcalidrawSceneValue) => {
     scene$.next(next);
-    setSaveStatus("dirty");
+    if (buildSceneSnapshot(next) !== buildSceneSnapshot(scene$.getValue())) {
+      setSaveStatus(ExcalidrawSaveStatus.DIRTY);
+    }
   });
 
   const handleManualSave = useMemoizedFn(async () => {
     const current = scene$.getValue();
     if (!current) return;
     try {
-      setSaveStatus("saving");
+      setSaveStatus(ExcalidrawSaveStatus.SAVING);
       await saveData(current);
-      setSaveStatus("saved");
+      setSaveStatus(ExcalidrawSaveStatus.SAVED);
     } catch (error) {
       console.error("Manual save excalidraw data failed:", error);
-      setSaveStatus("error");
+      setSaveStatus(ExcalidrawSaveStatus.ERROR);
     }
   });
 
@@ -167,7 +166,7 @@ export const AppExcalidraw: FC<{
     return <div>{t("excalidraw.uriRequired")}</div>;
   }
 
-  if (!scene) {
+  if (initialSceneLoading) {
     return (
       <div className="h-full w-full flex items-center justify-center text-sm text-muted-foreground">
         {t("excalidraw.loading")}
@@ -178,9 +177,10 @@ export const AppExcalidraw: FC<{
   return (
     <ExcalidrawAICanvas
       key={uri}
-      value={scene}
+      initialValue={initialScene}
       onChange={handleSceneChange}
       showSaveStatus
+      // saveStatus={saveStatus}
       saveStatus={saveStatus}
       onSaveClick={handleManualSave}
     />

@@ -1,0 +1,1 @@
+import{on as e,sn as t}from"./monaco-B5Td6Jhq.js";export{e as conf,t as language};

@@ -6,7 +6,9 @@ import { renderChunksWithStrategy } from "./splitChunks";
 import monacoEditorPluginRaw from "vite-plugin-monaco-editor";
 
 
-console.log("dependencies", dependencies);
+if (process.env.VITE_DEBUG_BUILD === "1") {
+  console.log("dependencies", dependencies);
+}
 export default defineConfig({
   base: "/",
   plugins: [

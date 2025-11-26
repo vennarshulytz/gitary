@@ -9,6 +9,15 @@ export const strategy: SplitChunkStrategy = [
     match: [/^monaco-editor$/],
     name: "monaco",
   },
+  // Heavy editors: keep Excalidraw / Zenmark in their own async chunks
+  {
+    match: [/^@excalidraw\/excalidraw$/],
+    name: "excalidraw",
+  },
+  {
+    match: [/^zenmark-editor$/],
+    name: "zenmark-editor",
+  },
   {
     match: [
       /^react$/,
@@ -91,7 +100,9 @@ export const renderChunksWithStrategy = (deps: Record<string, string>) => {
       }
     }
   }
-  console.log("chunks:", chunks);
+  if (process.env.VITE_DEBUG_CHUNKS === "1") {
+    console.log("chunks:", chunks);
+  }
 
   // manualChunks resolver for Rollup / Rolldown
   return (id: string) => {

@@ -132,6 +132,7 @@
   },
   "zenmark": {
     "loading": "Loading...",
+    "loadingEditor": "Loading editor...",
     "fileSaved": "File saved successfully"
   },
   "tree": {

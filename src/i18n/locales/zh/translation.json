@@ -132,6 +132,7 @@
   },
   "zenmark": {
     "loading": "加载中...",
+    "loadingEditor": "加载编辑器中...",
     "fileSaved": "文件保存成功"
   },
   "tree": {

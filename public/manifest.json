@@ -1,7 +1,7 @@
 {
     "name": "Gitary",
     "short_name": "Gitary",
-    "description": "Notion-like editing + Excalidraw drawing for your Git repositories - 类 Notion 编辑 + Excalidraw 画图，运行在你的 Git 仓库上",
+    "description": "Notion-like editing + Professional diagramming (Excalidraw & Draw.io) for your Git repositories - 类 Notion 编辑 + 专业图表绘制（Excalidraw & Draw.io），运行在你的 Git 仓库上",
     "display": "standalone",
     "start_url": "/",
     "scope": "/",

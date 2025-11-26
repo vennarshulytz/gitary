@@ -2,10 +2,10 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-> **类 Notion 编辑 + Excalidraw 画图，运行在你的 Git 仓库上**  
-> **为你的 Git 仓库带来 Notion 风格的强大编辑体验和 Excalidraw 画图能力**
+> **类 Notion 编辑 + Excalidraw & Draw.io 画图，运行在你的 Git 仓库上**  
+> **为你的 Git 仓库带来 Notion 风格的强大编辑体验和专业图表绘制能力**
 
-将 Notion 风格的强大编辑体验和 Excalidraw 画图能力带到你的 Git 仓库中。你的笔记，你的数据，你的控制权。
+将 Notion 风格的强大编辑体验和专业图表绘制能力（Excalidraw & Draw.io）带到你的 Git 仓库中。你的笔记，你的数据，你的控制权。
 
 ## 🌐 在线体验
 
@@ -79,12 +79,13 @@
 - 快速准确的搜索结果
 - 支持在代码文件和 Markdown 文档中搜索
 
-### 🎨 Excalidraw 画图支持
+### 🎨 专业图表绘制支持
 
-- 内置 **Excalidraw** 白板，创建图表和草图
-- 绘制流程图、架构图、线框图等
+- **Excalidraw**：内置白板，创建精美的图表和草图
+- **Draw.io**：专业图表编辑器，支持流程图、UML 图、网络图等
+- 绘制流程图、架构图、线框图、系统图等
 - 所有绘图直接保存到你的 Git 仓库
-- 专业的绘图工具，支持形状、箭头和文本
+- 专业的绘图工具，支持形状、箭头、连接线和文本
 - 完美适合技术文档和可视化笔记
 
 ### 🤖 AI 智能画图
@@ -152,4 +153,4 @@ pnpm dev
 
 ---
 
-**Gitary** - 类 Notion 编辑 + AI 智能画图 + 全局 AI 助手，运行在你的 Git 仓库上。你的笔记，你的数据，你的控制权。
+**Gitary** - 类 Notion 编辑 + AI 智能画图（Excalidraw & Draw.io）+ 全局 AI 助手，运行在你的 Git 仓库上。你的笔记，你的数据，你的控制权。

@@ -12,11 +12,12 @@
 - Support for mathematical formulas, charts, and code highlighting
 - Intuitive and elegant writing experience
 
-### 2. 🎨 Excalidraw Drawing Support
-- Built-in Excalidraw whiteboard
-- Draw flowcharts, architecture diagrams, wireframes, and more
+### 2. 🎨 Professional Diagramming Support
+- **Excalidraw**: Built-in whiteboard for beautiful diagrams and sketches
+- **Draw.io**: Professional diagram editor for flowcharts, UML, network diagrams, and more
+- Draw flowcharts, architecture diagrams, wireframes, system diagrams, and more
 - All drawings saved directly to your Git repository
-- Professional drawing tools (shapes, arrows, text)
+- Professional drawing tools (shapes, arrows, connectors, text)
 
 ### 3. 🔄 Git Integration
 - Direct connection to GitHub, Gitee, GitCode repositories
@@ -88,7 +89,7 @@
 4. **Global AI Assistant** - Intelligent tool integration (New)
 
 ### Important Features
-5. Excalidraw drawing support
+5. Professional diagramming support (Excalidraw & Draw.io)
 6. Git integration
 7. VS Code-style workspace
 8. Code reading capabilities
@@ -112,7 +113,7 @@
 | Editing Experience | ✅ Excellent | ⚠️ Average | ✅ Notion-like |
 | Data Ownership | ❌ Server | ❌ Server | ✅ **Git Repositories** |
 | Version Control | ⚠️ History only | ❌ None | ✅ **Full Git** |
-| Drawing Features | ⚠️ Basic | ⚠️ Basic | ✅ **Excalidraw + AI** |
+| Drawing Features | ⚠️ Basic | ⚠️ Basic | ✅ **Excalidraw + Draw.io + AI** |
 | AI Diagram Generation | ❌ None | ❌ None | ✅ **Natural language to diagrams** |
 | AI Assistant | ⚠️ Limited | ❌ None | ✅ **Global tool integration** |
 | Code Integration | ❌ None | ❌ None | ✅ **Native support** |

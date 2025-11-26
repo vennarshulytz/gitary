@@ -9,7 +9,7 @@ Open GitHub, Gitee, and GitCode repositories in Gitary (`gitary.app`) with one c
 - Click the extension icon on a repository page (GitHub/Gitee/GitCode) to open it in Gitary.
 - Right-click on repository pages or links and select "Open in Gitary".
 - Supports **GitHub**, **Gitee**, and **GitCode** platforms.
-- Enjoy **Notion-like editing**, **AI-powered Excalidraw drawing**, and **Global AI Assistant** capabilities in Gitary for enhanced note-taking, AI-generated diagrams, and intelligent assistance.
+- Enjoy **Notion-like editing**, **AI-powered diagramming (Excalidraw & Draw.io)**, and **Global AI Assistant** capabilities in Gitary for enhanced note-taking, AI-generated diagrams, and intelligent assistance.
 
 ## Installation
 
@@ -68,7 +68,7 @@ Upload this `gitary-companion.zip` to Chrome Web Store.
 - Extension Name:
   - Gitary Companion
 - Short Description (max 132 characters):
-  - Open GitHub/Gitee/GitCode repos in Gitary: Notion-like editing + Excalidraw drawing for code & notes.
+  - Open GitHub/Gitee/GitCode repos in Gitary: Notion-like editing + Professional diagramming (Excalidraw & Draw.io) for code & notes.
 - Detailed Description (multi-paragraph):
 
 > Gitary Companion lets you quickly open GitHub, Gitee, and GitCode repositories in Gitary for a more professional code reading and knowledge management experience.  
@@ -78,7 +78,7 @@ Upload this `gitary-companion.zip` to Chrome Web Store.
 > - Right-click open: Right-click on repository pages or links and select "Open in Gitary".  
 > - Multi-platform support: Supports GitHub, Gitee, and GitCode platforms.  
 > - Notion-like editing: Enjoy powerful WYSIWYG Markdown editing with live preview, slash commands, and rich formatting.  
-> - Excalidraw drawing: Create beautiful diagrams, flowcharts, and sketches directly in your Git repositories.  
+> - Professional diagramming: Create beautiful diagrams, flowcharts, UML diagrams, and sketches with Excalidraw & Draw.io directly in your Git repositories.  
 > - Auto repository detection: Intelligently parses repository URLs, only works on supported pages.  
 >  
 > Permission Explanation:  

@@ -2,10 +2,9 @@ import { AIAssistantIcon } from "@/components/icons/ai-assistant-icon";
 import { Button } from "@/components/ui/button";
 import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
 import { Textarea } from "@/components/ui/textarea";
-import { spaceHelper } from "@/helpers/space.helper";
 import { useStickyAutoScroll } from "@/hooks/use-sticky-autoscroll";
+import { useAIContext } from "@/hooks/use-ai-context";
 import { agent } from "@/services/ai/ai-agent-runner";
-import { aiContextService } from "@/services/ai/context-service";
 import { cn } from "@/toolkit/utils/shadcn-utils";
 import {
   useAgentChat,
@@ -51,9 +50,8 @@ export const GlobalChatPanel = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { colorMode } = useColorMode();
   const { containerRef, notifyNewItem, scrollToBottom } = useStickyAutoScroll();
-  const [currentSpaceId, setCurrentSpaceId] = useState<string | null>(null);
+  const contexts = useAIContext();
 
-  // Global tools for the assistant; defined in a separate module for maintainability.
   const agentTools: AgentTool[] = useMemo(
     () => GLOBAL_AGENT_TOOLS as AgentTool[],
     []
@@ -69,14 +67,7 @@ export const GlobalChatPanel = () => {
     agent,
     toolDefs,
     toolExecutors,
-    contexts: currentSpaceId
-      ? [
-        {
-          description: "current_space_id",
-          value: currentSpaceId,
-        },
-      ]
-      : [],
+    contexts,
     initialMessages: [],
   });
 
@@ -84,7 +75,12 @@ export const GlobalChatPanel = () => {
     const parts = message.parts || [];
     return parts
       .filter((part) => part.type === "text")
-      .map((part: any) => part.text as string)
+      .map((part) => {
+        if (part.type === "text") {
+          return part.text;
+        }
+        return "";
+      })
       .join("\n\n");
   };
 
@@ -95,27 +91,6 @@ export const GlobalChatPanel = () => {
     return last?.id;
   }, [uiMessages]);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const pageCtx = await aiContextService.getCurrentPageContext();
-        const uri = pageCtx?.uri;
-        if (!uri || cancelled) return;
-        const spaceId = spaceHelper.getSpaceIdFromUri(uri);
-        if (!cancelled) {
-          setCurrentSpaceId(spaceId);
-        }
-      } catch {
-        if (!cancelled) {
-          setCurrentSpaceId(null);
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
   useEffect(() => {
     notifyNewItem();
   }, [messages, notifyNewItem]);
@@ -181,7 +156,7 @@ export const GlobalChatPanel = () => {
                 const isAssistant = msg.role === "assistant";
                 const hasTools =
                   (msg.parts || []).some(
-                    (part) => (part as any).type === "tool-invocation"
+                    (part) => part.type === "tool-invocation"
                   );
                 const isLastAssistant =
                   isAssistant && msg.id === lastAssistantId;
@@ -280,3 +255,4 @@ export const GlobalChatPanel = () => {
     </div>
   );
 };
+

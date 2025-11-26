@@ -186,6 +186,7 @@
     "language": "Language",
     "lineCount": "Line Count",
     "fileContent": "File Content",
+    "fileContentTruncated": "File content truncated, showing first {{shown}} characters of {{total}} total",
     "currentProjectFile": "Current Project File",
     "recentFiles": "Recently Opened Files"
   },

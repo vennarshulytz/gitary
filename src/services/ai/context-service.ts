@@ -31,6 +31,8 @@ export interface AIContext {
   timestamp: number;
 }
 
+const MAX_FILE_CONTENT_CHARS = 8_000;
+
 export class AIContextService {
   async getCurrentPageContext(): Promise<{ uri?: string; openerId?: string } | undefined> {
     const page = layoutService.pageBox.getCurrentPage?.();
@@ -153,7 +155,20 @@ export class AIContextService {
       }
       parts.push("");
       parts.push(`### ${t("globalChat.fileContent")}`);
-      parts.push("```" + (context.editor.language || "") + "\n" + context.editor.content + "\n```");
+      
+      let fileContent = context.editor.content;
+      const isTruncated = fileContent.length > MAX_FILE_CONTENT_CHARS;
+      if (isTruncated) {
+        fileContent = fileContent.slice(0, MAX_FILE_CONTENT_CHARS);
+        parts.push(
+          `(${t("globalChat.fileContentTruncated", {
+            shown: MAX_FILE_CONTENT_CHARS.toLocaleString(),
+            total: context.editor.content.length.toLocaleString(),
+          })})`
+        );
+      }
+      
+      parts.push("```" + (context.editor.language || "") + "\n" + fileContent + "\n```");
       parts.push("");
     }
 

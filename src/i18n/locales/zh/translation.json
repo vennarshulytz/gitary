@@ -186,6 +186,7 @@
     "language": "语言",
     "lineCount": "行数",
     "fileContent": "文件内容",
+    "fileContentTruncated": "文件内容已截断，仅显示前 {{shown}} 个字符，共 {{total}} 个字符",
     "currentProjectFile": "当前项目文件",
     "recentFiles": "最近打开的文件"
   },

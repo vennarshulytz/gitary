@@ -67,8 +67,18 @@ export const useStoragedScene = (uri: string) => {
 };
 
 export const normalizeValueForStorage = (value: ExcalidrawSceneValue): ExcalidrawSceneValue => {
+  const elements = value.elements ?? [];
+  const activeElements = elements.filter(
+    (el) => {
+      if (!el || typeof el !== "object") {
+        return false;
+      }
+      return !(el as { isDeleted?: boolean }).isDeleted;
+    },
+  );
+
   return {
-    elements: value.elements,
+    elements: activeElements.length > 0 ? activeElements : undefined,
     files: value.files,
     appState: value.appState ? {
       zoom: value.appState.zoom

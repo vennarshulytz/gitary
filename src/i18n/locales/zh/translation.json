@@ -30,6 +30,7 @@
   "settings": {
     "title": "设置",
     "quickSettings": "快速设置",
+    "theme": "主题",
     "switchToDarkMode": "切换到暗黑模式",
     "switchToLightMode": "切换到明亮模式",
     "localCache": "本地缓存",

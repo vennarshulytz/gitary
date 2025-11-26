@@ -30,6 +30,7 @@
   "settings": {
     "title": "Settings",
     "quickSettings": "Quick Settings",
+    "theme": "Theme",
     "switchToDarkMode": "Switch to Dark Mode",
     "switchToLightMode": "Switch to Light Mode",
     "localCache": "Local Cache",

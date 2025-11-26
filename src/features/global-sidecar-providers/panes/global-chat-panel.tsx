@@ -2,8 +2,10 @@ import { AIAssistantIcon } from "@/components/icons/ai-assistant-icon";
 import { Button } from "@/components/ui/button";
 import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
 import { Textarea } from "@/components/ui/textarea";
+import { useAIContextStore } from "@/core/stores/ai-context.store";
+import { useEditorAIContexts } from "@/hooks/use-editor-ai-contexts";
+import { useProvideGlobalAIContexts } from "@/hooks/use-provide-global-ai-contexts";
 import { useStickyAutoScroll } from "@/hooks/use-sticky-autoscroll";
-import { useAIContext } from "@/hooks/use-ai-context";
 import { agent } from "@/services/ai/ai-agent-runner";
 import { cn } from "@/toolkit/utils/shadcn-utils";
 import {
@@ -50,7 +52,12 @@ export const GlobalChatPanel = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { colorMode } = useColorMode();
   const { containerRef, notifyNewItem, scrollToBottom } = useStickyAutoScroll();
-  const contexts = useAIContext();
+  const editorContexts = useEditorAIContexts();
+  useProvideGlobalAIContexts(editorContexts);
+  const contexts = useAIContextStore((state) => state.contexts).map((ctx) => ({
+    description: ctx.description,
+    value: ctx.value,
+  }));
 
   const agentTools: AgentTool[] = useMemo(
     () => GLOBAL_AGENT_TOOLS as AgentTool[],

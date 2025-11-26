@@ -132,7 +132,7 @@ export class ExcalidrawAIService {
 
     try {
       const response = await aiGateway.chat({
-        model: "openrouter/openai/gpt-4o-mini",
+        model: "dashscope/qwen3-max",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },

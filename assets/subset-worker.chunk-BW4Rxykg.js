@@ -1,1 +1,0 @@
-import{n as e}from"./excalidraw-P-pYtvw9.js";export{e as WorkerUrl};

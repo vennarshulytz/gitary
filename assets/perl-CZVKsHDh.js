@@ -1,0 +1,1 @@
+import{en as e,tn as t}from"./monaco-BOlBa4ve.js";export{e as conf,t as language};

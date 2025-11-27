@@ -1,6 +1,6 @@
 import { type DrawioXmlValue, DEFAULT_DRAWIO_XML } from "./drawio-shared";
 import { useMemoizedFn } from "@/hooks/use-memoized-fn";
-import { FC, useEffect, useRef } from "react";
+import { FC, useEffect, useMemo, useRef } from "react";
 import { useDrawioRuntime } from "@/hooks/use-drawio-runtime";
 
 interface DrawioEditorProps {
@@ -21,10 +21,26 @@ export const DrawioEditor: FC<DrawioEditorProps> = ({
   const xmlRef = useRef<DrawioXmlValue | null>(
     initialXml || DEFAULT_DRAWIO_XML
   );
+  const isInitializedRef = useRef(false);
+  const initialXmlRef = useRef(initialXml);
 
   useEffect(() => {
-    if (initialXml) {
+    if (initialXml && !isInitializedRef.current) {
       xmlRef.current = initialXml;
+      initialXmlRef.current = initialXml;
+      isInitializedRef.current = true;
+    } else if (initialXml && initialXml !== initialXmlRef.current) {
+      initialXmlRef.current = initialXml;
+      if (xmlRef.current !== initialXml) {
+        xmlRef.current = initialXml;
+        const iframe = iframeRef.current;
+        if (iframe && iframe.contentWindow) {
+          iframe.contentWindow.postMessage(
+            JSON.stringify({ action: "load", xml: initialXml }),
+            DRAWIO_ORIGIN
+          );
+        }
+      }
     }
   }, [initialXml]);
 
@@ -82,9 +98,10 @@ export const DrawioEditor: FC<DrawioEditorProps> = ({
     return () => window.removeEventListener("message", handleMessage);
   }, [handleMessage]);
 
-  const drawioUrl = xmlRef.current
-    ? `${DRAWIO_BASE_URL}&xml=${encodeURIComponent(xmlRef.current)}`
-    : DRAWIO_BASE_URL;
+  const drawioUrl = useMemo(() => {
+    const initialXmlForUrl = initialXmlRef.current || DEFAULT_DRAWIO_XML;
+    return `${DRAWIO_BASE_URL}&xml=${encodeURIComponent(initialXmlForUrl)}`;
+  }, []);
 
   return (
     <iframe

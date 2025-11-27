@@ -1,5 +1,9 @@
 # Gitary
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub stars](https://img.shields.io/github/stars/Peiiii/gitary.svg?style=social&label=Star)](https://github.com/Peiiii/gitary)
+[![GitHub forks](https://img.shields.io/github/forks/Peiiii/gitary.svg?style=social&label=Fork)](https://github.com/Peiiii/gitary/fork)
+
 [English](README.md) | [中文](README.zh-CN.md)
 
 > **Notion-like editing + Excalidraw & Draw.io drawing for your Git repositories**

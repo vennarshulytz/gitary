@@ -120,8 +120,7 @@ export const drawioModifyTool: Tool<
             return;
           }
 
-          const nodeId = (op.id && op.id.trim()) || `node-${currentNextId++}`;
-          const cellId = `cell-${currentNextId++}`;
+          const cellId = (op.id && op.id.trim()) || `cell-${currentNextId++}`;
 
           let position = defaultCenter;
           if (op.near) {
@@ -235,6 +234,8 @@ export const drawioModifyTool: Tool<
       const serializer = new XMLSerializer();
       const updatedXml = serializer.serializeToString(doc);
       handle.updateXml(updatedXml);
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       return {
         applied,

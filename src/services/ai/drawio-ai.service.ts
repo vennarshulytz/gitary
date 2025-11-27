@@ -1,4 +1,5 @@
 import { aiGateway } from "@/services/ai/gateway";
+import { t } from "@/i18n/utils";
 
 export class DrawioAIService {
   async generateDiagram(prompt: string): Promise<string> {
@@ -64,7 +65,7 @@ Draw.io XML 基本结构：
       const content = response.messages[0]?.content || "";
       
       if (!content.trim()) {
-        throw new Error("AI 返回的内容为空");
+        throw new Error(t("drawio.tools.aiResponseEmpty"));
       }
       
       let xmlStr = content.trim();
@@ -78,11 +79,11 @@ Draw.io XML 基本结构：
       xmlStr = xmlStr.trim();
       
       if (!xmlStr) {
-        throw new Error("AI 返回的内容格式不正确");
+        throw new Error(t("drawio.tools.aiResponseInvalidFormat"));
       }
 
       if (!xmlStr.includes("<mxfile>") || !xmlStr.includes("</mxfile>")) {
-        throw new Error("AI 返回的内容不是有效的 Draw.io XML 格式");
+        throw new Error(t("drawio.tools.aiResponseInvalidXml"));
       }
 
       return xmlStr;
@@ -91,7 +92,7 @@ Draw.io XML 基本结构：
       throw new Error(
         error instanceof Error
           ? error.message
-          : "生成图表时出错，请重试"
+          : t("drawio.tools.generateError")
       );
     }
   }

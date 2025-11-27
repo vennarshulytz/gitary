@@ -39,7 +39,27 @@ export const drawioAnalyzeTool: Tool<
       const nodes: Array<{ id: string; label: string; type?: string }> = [];
       const edges: Array<{ id: string; from: string; to: string }> = [];
 
-      const cells = doc.querySelectorAll("mxCell");
+      const mxfile = doc.querySelector("mxfile");
+      if (!mxfile) {
+        throw new Error("Invalid Draw.io XML: missing mxfile element");
+      }
+
+      const diagram = mxfile.querySelector("diagram");
+      if (!diagram) {
+        throw new Error("Invalid Draw.io XML: missing diagram element");
+      }
+
+      const mxGraphModel = diagram.querySelector("mxGraphModel");
+      if (!mxGraphModel) {
+        throw new Error("Invalid Draw.io XML: missing mxGraphModel element");
+      }
+
+      const root = mxGraphModel.querySelector("root");
+      if (!root) {
+        throw new Error("Invalid Draw.io XML: missing root element");
+      }
+
+      const cells = root.querySelectorAll("mxCell");
       cells.forEach((cell) => {
         const id = cell.getAttribute("id") || "";
         const value = cell.getAttribute("value") || "";
@@ -48,19 +68,20 @@ export const drawioAnalyzeTool: Tool<
         const edge = cell.getAttribute("edge");
         const source = cell.getAttribute("source");
         const target = cell.getAttribute("target");
+        const parent = cell.getAttribute("parent");
 
-        if (vertex === "1" && value) {
+        if (vertex === "1" && parent === "1") {
           let type = "rectangle";
-          if (style.includes("ellipse")) type = "ellipse";
-          else if (style.includes("rhombus")) type = "rhombus";
-          else if (style.includes("hexagon")) type = "hexagon";
-          else if (style.includes("cylinder")) type = "cylinder";
-          else if (style.includes("actor")) type = "actor";
-          else if (style.includes("cloud")) type = "cloud";
+          if (style.includes("ellipse") || style.includes("shape=ellipse")) type = "ellipse";
+          else if (style.includes("rhombus") || style.includes("shape=rhombus")) type = "rhombus";
+          else if (style.includes("hexagon") || style.includes("shape=hexagon")) type = "hexagon";
+          else if (style.includes("cylinder") || style.includes("shape=cylinder")) type = "cylinder";
+          else if (style.includes("actor") || style.includes("shape=actor")) type = "actor";
+          else if (style.includes("cloud") || style.includes("shape=cloud")) type = "cloud";
 
           nodes.push({
             id,
-            label: value,
+            label: value || t("drawio.tools.nodeWithoutLabel", { id }),
             type,
           });
         }
@@ -74,7 +95,10 @@ export const drawioAnalyzeTool: Tool<
         }
       });
 
-      const summary = `图表包含 ${nodes.length} 个节点和 ${edges.length} 条连接线。`;
+      const summary = t("drawio.tools.analysisSummary", {
+        nodeCount: nodes.length,
+        edgeCount: edges.length,
+      });
 
       return {
         nodeCount: nodes.length,

@@ -30,8 +30,8 @@
 </div>
 
 <div align="center">
-  <img src="images/screenshots/gitary-screenshot-drawio.png" alt="Gitary Draw.io 欢迎界面" width="800"/>
-  <p><em>Draw.io 图表编辑器 - 创建专业的流程图、UML 图和网络图</em></p>
+  <img src="images/screenshots/gitary-screenshot-ai-drawio.png" alt="Gitary Draw.io AI 图表生成" width="800"/>
+  <p><em>Draw.io 图表编辑器与 AI - 使用自然语言创建专业的流程图、UML 图和网络图</em></p>
 </div>
 
 <div align="center">

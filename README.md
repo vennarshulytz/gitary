@@ -29,8 +29,8 @@ For more details, see the [Gitary Companion README](browser-extension/gitary-com
 </div>
 
 <div align="center">
-  <img src="images/screenshots/gitary-screenshot-drawio.png" alt="Gitary Draw.io Welcome" width="800"/>
-  <p><em>Draw.io diagram editor - Create professional flowcharts, UML diagrams, and network diagrams</em></p>
+  <img src="images/screenshots/gitary-screenshot-ai-drawio.png" alt="Gitary Draw.io AI Diagram Generation" width="800"/>
+  <p><em>Draw.io diagram editor with AI - Create professional flowcharts, UML diagrams, and network diagrams using natural language</em></p>
 </div>
 
 <div align="center">

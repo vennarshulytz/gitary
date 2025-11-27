@@ -1,1 +1,0 @@
-import"./chakra-ui-DL3iEWi3.js";import"./excalidraw-yEEnJjZ9.js";import"./react-utils-wr8-iL4Y.js";import"./zenmark-editor-B3YBIbEI.js";import"./vendor-B06hKXvc.js";import{ht as e,mt as t}from"./app-CMv64s6i.js";export{e as openerService};

@@ -3,6 +3,8 @@ import type { CSSProperties, ReactNode } from "react";
 import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/toolkit/utils/shadcn-utils";
+import { useGlobalUIStore } from "@/core/stores/global-ui.store";
+import { globalUIManager } from "@/core/managers/global-ui.manager";
 import {
   getRegisteredGlobalSidecarPanes,
   subscribeGlobalSidecarPanes,
@@ -58,23 +60,31 @@ export const GlobalSidecarProvider = ({
   const [panes, setPanes] = useState<Map<string, GlobalSidecarPaneDefinition>>(
     () => getRegisteredGlobalSidecarPanes()
   );
-  const [open, setOpen] = useState(false);
-  const [activePaneId, setActivePaneId] = useState<string | undefined>(undefined);
+  const open = useGlobalUIStore((state) => state.globalSidecar.open);
+  const activePaneId = useGlobalUIStore(
+    (state) => state.globalSidecar.activePaneId
+  );
   const [activePaneProps, setActivePaneProps] = useState<Record<string, unknown>>({});
   const [contentVisible, setContentVisible] = useState(false);
 
   useEffect(() => {
     return subscribeGlobalSidecarPanes((next) => {
       setPanes(next);
+      const { globalSidecar } = useGlobalUIStore.getState();
+      const currentActiveId = globalSidecar.activePaneId;
       if (next.size === 0) {
-        setActivePaneId(undefined);
-        setOpen(false);
-      } else if (activePaneId && !next.has(activePaneId)) {
+        globalUIManager.updateGlobalSidecarState({
+          activePaneId: undefined,
+          open: false,
+        });
+      } else if (currentActiveId && !next.has(currentActiveId)) {
         const first = next.values().next().value;
-        setActivePaneId(first?.id);
+        globalUIManager.updateGlobalSidecarState({
+          activePaneId: first?.id,
+        });
       }
     });
-  }, [activePaneId]);
+  }, []);
 
   useEffect(() => {
     if (open) {
@@ -92,9 +102,8 @@ export const GlobalSidecarProvider = ({
   const openPane = useCallback(
     (id: string, props?: Record<string, unknown>) => {
       if (!panes.has(id)) return;
-      setActivePaneId(id);
       setActivePaneProps(props || {});
-      setOpen(true);
+      globalUIManager.openGlobalSidecar(id);
     },
     [panes]
   );
@@ -102,18 +111,13 @@ export const GlobalSidecarProvider = ({
   const togglePane = useCallback(
     (id: string) => {
       if (!panes.has(id)) return;
-      if (open && activePaneId === id) {
-        setOpen(false);
-      } else {
-        setActivePaneId(id);
-        setOpen(true);
-      }
+      globalUIManager.toggleGlobalSidecar(id);
     },
-    [activePaneId, open, panes]
+    [panes]
   );
 
   const closePane = useCallback(() => {
-    setOpen(false);
+    globalUIManager.closeGlobalSidecar();
   }, []);
 
   const ctxValue = useMemo(

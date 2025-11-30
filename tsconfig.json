@@ -38,6 +38,9 @@
       "libs/*": [
         "./libs/*"
       ],
+      "pinyin": [
+        "./src/shims/pinyin.ts"
+      ],
     }
   },
   "include": [

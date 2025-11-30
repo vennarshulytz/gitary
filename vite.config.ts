@@ -56,6 +56,10 @@ export default defineConfig({
         find: "libs",
         replacement: resolve(__dirname, "libs"),
       },
+      {
+        find: /^pinyin$/,
+        replacement: resolve(__dirname, "src/shims/pinyin.ts"),
+      },
     ],
   },
   build: {

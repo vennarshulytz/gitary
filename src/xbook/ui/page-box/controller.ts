@@ -26,6 +26,7 @@ export type PageDescriptor = {
   viewData?: LayoutNode;
   src?: string;
   active?: boolean;
+  mountMode?: "lazy" | "eager";
   status?: "deleted" | "loading" | "unsaved";
 };
 
@@ -106,6 +107,7 @@ export const PageBoxController = defineController(() => {
         pageList.filter((page) => !page.active).slice(0, maxCacheSize - 1)
       );
   };
+  const initialPageList = loadPageList() as PageDescriptor[];
   const {
     getPageList,
     setPageList,
@@ -114,9 +116,44 @@ export const PageBoxController = defineController(() => {
     PageList$: pageList$,
   } = createCustomReactBean(
     "PageList",
-    loadPageList() as PageDescriptor[],
+    initialPageList,
     (bean) => {
       withCache(bean, cache);
+    }
+  );
+
+  const selectRenderedIds = (pages: PageDescriptor[], prev: Set<string>) => {
+    const rendered: string[] = [];
+    for (const page of pages) {
+      if (
+        prev.has(page.id) ||
+        page.active ||
+        page.mountMode === "eager"
+      ) {
+        rendered.push(page.id);
+      }
+    }
+    return rendered;
+  };
+
+  const {
+    getRenderedPageIds,
+    setRenderedPageIds,
+    useRenderedPageIds,
+  } = createCustomReactBean(
+    "RenderedPageIds",
+    selectRenderedIds(initialPageList, new Set()),
+    (bean) => {
+      const isEqual = (a: string[], b: string[]) =>
+        a.length === b.length && a.every((value, index) => value === b[index]);
+      const sub = pageList$.subscribe((pages) => {
+        const current = bean.getRenderedPageIds();
+        const next = selectRenderedIds(pages, new Set(current));
+        if (!isEqual(current, next)) {
+          bean.setRenderedPageIds(next);
+        }
+      });
+      return () => sub.unsubscribe();
     }
   );
 
@@ -305,6 +342,9 @@ export const PageBoxController = defineController(() => {
     setPageList,
     usePageList,
     subscribePageList,
+    getRenderedPageIds,
+    setRenderedPageIds,
+    useRenderedPageIds,
     minTabWidth,
     maxTabWidth,
     ...PageActions,

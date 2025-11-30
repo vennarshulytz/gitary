@@ -46,11 +46,13 @@ export const createPageBox = (): {
       usePageList,
       getPageList,
       setPageList,
+      useRenderedPageIds,
       useTabBarCapacity,
       useTabBarVisible,
       useVisible,
     } = proxy;
     const pageList = usePageList();
+    const renderedPageIds = useRenderedPageIds?.() || [];
     const tabBarCapacity = useTabBarCapacity();
     const tabBarVisible = useTabBarVisible();
     const visible = useVisible();
@@ -201,30 +203,32 @@ export const createPageBox = (): {
       [pageList, tabBarCapacity]
     );
 
-    const bodiesView = useMemo(
-      () =>
-        pageList.map((page) => {
-          const { id, active, viewData } = page;
-          let finalView;
-          if (viewData) {
-            finalView = componentService.render(viewData);
-          }
-          return (
-            <Box
-              key={id}
-              m="0 !important"
-              h="100%"
-              w="100%"
-              id={id}
-              overflow={"auto"}
-              display={active ? "block" : "none"}
-            >
-              {finalView}
-            </Box>
-          );
-        }),
-      [pageList]
-    );
+    const bodiesView = useMemo(() => {
+      const renderedSet = new Set(renderedPageIds);
+      return pageList.map((page) => {
+        const { id, active, viewData } = page;
+        if (!renderedSet.has(id)) {
+          return null;
+        }
+        let finalView;
+        if (viewData) {
+          finalView = componentService.render(viewData);
+        }
+        return (
+          <Box
+            key={id}
+            m="0 !important"
+            h="100%"
+            w="100%"
+            id={id}
+            overflow={"auto"}
+            display={active ? "block" : "none"}
+          >
+            {finalView}
+          </Box>
+        );
+      });
+    }, [pageList, renderedPageIds]);
     return (
       <PageBoxController.Provider value={pageBoxController}>
         <VStack

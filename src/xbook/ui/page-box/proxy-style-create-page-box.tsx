@@ -31,6 +31,7 @@ export type PageDescriptor = {
   viewData?: LayoutNode;
   src?: string;
   active?: boolean;
+  mountMode?: "lazy" | "eager";
   status?: "deleted" | "loading" | "unsaved";
 };
 type PageBoxMethods = {

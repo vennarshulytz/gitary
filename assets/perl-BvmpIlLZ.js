@@ -1,1 +1,0 @@
-import{en as e,tn as t}from"./monaco-By2C4dsp.js";export{e as conf,t as language};

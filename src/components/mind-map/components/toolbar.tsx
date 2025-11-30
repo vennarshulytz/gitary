@@ -50,7 +50,7 @@ export const Toolbar = ({
       </button>
     </div>
 
-    <div className="flex items-center gap-1 border-r border-slate-200 dark:border-slate-700 pr-2">
+    <div className="flex items-center gap-1">
       <button
         onClick={onAdd}
         className="p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 transition-colors"

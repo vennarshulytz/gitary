@@ -15,7 +15,7 @@ export default createPlugin({
     openerService.register({
       id: "text-file-view",
       label: "Monaco Editor",
-      icon: "AiOutlineCodeEditor",
+      icon: "FileCode",
       showInTreeMenu: true,
       // Lower than markdown editor openers so .md defaults to Zenmark,
       // but still higher than many generic fallbacks.

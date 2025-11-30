@@ -25,8 +25,8 @@ export const prepareMenuService = (options: {
   renderer: Renderer;
 }) => {
   const { eventBus, renderer } = options;
-  renderer.register("AiOutlineMore", MoreHorizontal);
-  renderer.register("AiOutlinePlus", Plus);
+  renderer.register("MoreHorizontal", MoreHorizontal);
+  renderer.register("Plus", Plus);
   const menuService = new EnhancedMenuManager<NodeMenuItemData>({
     id: "root",
     data: {
@@ -58,7 +58,7 @@ export const prepareMenuService = (options: {
       key: "more",
       label: "更多",
       group: "root",
-      icon: "AiOutlineMore",
+      icon: "MoreHorizontal",
       order: 1,
     },
     {
@@ -66,7 +66,7 @@ export const prepareMenuService = (options: {
       key: "add",
       label: "添加",
       group: "root",
-      icon: "AiOutlinePlus",
+      icon: "Plus",
       order: 0,
     },
   ]);

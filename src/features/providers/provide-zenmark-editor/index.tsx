@@ -13,7 +13,7 @@ export default createPlugin({
       id: "zenmark-editor",
       label: t("apps.zenNotes"),
       // Use markdown-style file icon for ZenNotes markdown editor
-      icon: "AiOutlineFileMarkdown",
+      icon: "SiMarkdown",
       showInTreeMenu: true,
       // Higher than generic text viewer so markdown defaults to Zenmark.
       priority: -10,

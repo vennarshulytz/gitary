@@ -15,7 +15,7 @@ export default createFolderTreePlugin({
     const space = treeService.getSpace();
 
     // Register download icon for use in the tree context menu
-    viewSystem.renderer.register("AiOutlineDownload", Download);
+    viewSystem.renderer.register("Download", Download);
 
     viewSystem.addNodeMenuItems([
       {
@@ -23,7 +23,7 @@ export default createFolderTreePlugin({
         key: "downloadFile",
         name: t("tree.download"),
         label: t("tree.download"),
-        icon: "AiOutlineDownload",
+        icon: "Download",
         group: "more",
         when: "type === 'file'",
         event: TreeEventKeys.DownloadFile.name,

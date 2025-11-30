@@ -38,7 +38,7 @@ export default createTreeHelper<FolderTreeNode>().createPlugin({
         label: t("tree.newFile"),
         event: TreeEventKeys.AddFileAt.name,
         when: "type === 'dir'",
-        icon: "AiFillFileAdd",
+        icon: "FilePlus",
         group: "add",
       },
       {
@@ -48,7 +48,7 @@ export default createTreeHelper<FolderTreeNode>().createPlugin({
         label: t("tree.newFolder"),
         event: TreeEventKeys.AddFolderAt.name,
         when: "type === 'dir'",
-        icon: "AiFillFolderAdd",
+        icon: "FolderPlus",
         group: "add",
       },
       {
@@ -57,7 +57,7 @@ export default createTreeHelper<FolderTreeNode>().createPlugin({
         label: t("tree.newMarkdown"),
         event: TreeEventKeys.AddMarkdownAt.name,
         when: "type === 'dir'",
-        icon: "AiFillFileMarkdown",
+        icon: "FileText",
         group: "add",
       },
     ]);

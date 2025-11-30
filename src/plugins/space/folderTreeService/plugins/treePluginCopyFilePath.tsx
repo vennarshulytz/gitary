@@ -17,12 +17,12 @@ export default createFolderTreePlugin({
         id: "copyFilePath",
         key: "copyFilePath",
         label: t("tree.copyUri"),
-        icon: "AiFillCopy",
+        icon: "Copy",
         event: TreeEventKeys.CopyFilePath.name,
         group: "more",
       },
     ]);
-    viewSystem.renderer.register("AiFillCopy", Copy);
+    viewSystem.renderer.register("Copy", Copy);
     eventBus.on(TreeEventKeys.CopyFilePath, ({ node }) => {
       const uri = spaceHelper.getUri(space.id, node.id === "root" ? "" : node.id);
       navigator.clipboard.writeText(uri.toString());

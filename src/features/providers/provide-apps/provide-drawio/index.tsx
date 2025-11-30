@@ -11,7 +11,7 @@ export const provideDrawio = createPlugin({
       id: "drawio",
       label: t("apps.drawio"),
       showInTreeMenu: true,
-      icon: "AiOutlineFileAdd",
+      icon: "Network",
       match: [".drawio"],
       priority: 100,
       templates: [
@@ -20,7 +20,7 @@ export const provideDrawio = createPlugin({
           label: t("drawio.newFile"),
           defaultFileName: "Untitled.drawio",
           initialContent: '<mxfile><diagram></diagram></mxfile>',
-          icon: "AiOutlineFileAdd",
+          icon: "Network",
         },
       ],
       init: (uri) => {
@@ -40,4 +40,3 @@ export const provideDrawio = createPlugin({
     });
   },
 });
-

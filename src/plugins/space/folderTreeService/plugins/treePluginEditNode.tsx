@@ -23,7 +23,7 @@ export default createTreeHelper<FolderTreeNode>().createPlugin({
         event: TreeEventKeys.EditNode.name,
         name: t("tree.rename"),
         label: t("tree.rename"),
-        icon: "AiFillEdit",
+        icon: "Pencil",
         when: "level >= 0",
         validationRules: [
           {

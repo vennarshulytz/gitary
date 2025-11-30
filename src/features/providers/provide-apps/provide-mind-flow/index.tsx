@@ -11,7 +11,7 @@ export const provideMindFlow = createPlugin({
       id: "mind-flow",
       label: t("apps.mindFlow"),
       showInTreeMenu: true,
-      icon: "AiOutlineFileAdd",
+      icon: "Brain",
       match: [".mindflow.json", ".mindmap.json"],
       priority: 100,
       templates: [
@@ -20,7 +20,7 @@ export const provideMindFlow = createPlugin({
           label: t("mindFlow.newFile"),
           defaultFileName: "Untitled.mindmap.json",
           initialContent: JSON.stringify(DEFAULT_MIND_MAP_DATA, null, 2),
-          icon: "AiOutlineFileAdd",
+          icon: "Brain",
         },
       ],
       init: (uri) => {

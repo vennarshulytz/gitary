@@ -1,6 +1,7 @@
 import { FolderTreeNode } from "@/plugins/space/folderTreeService/types";
 import { createTreeHelper } from "@/toolkit/components/tree/treePlugins";
 import {
+  Brain,
   FilePlus,
   FolderPlus,
   FileText,
@@ -11,25 +12,26 @@ import {
   RefreshCw,
   Plus,
   Link,
+  PenTool,
+  Network,
 } from "lucide-react";
+import { SiMarkdown } from "react-icons/si";
 
 export default createTreeHelper<FolderTreeNode>().createPlugin({
   activate({ viewSystem: { renderer } }) {
-    renderer.register("AiOutlineLink", Link);
-    renderer.register("AiOutlineFolderAdd", FolderPlus);
-    renderer.register("AiOutlineFileAdd", FilePlus);
-    renderer.register("AiOutlinePlus", Plus);
-    renderer.register("AiFillFolderAdd", FolderPlus);
-    renderer.register("AiFillFileAdd", FilePlus);
-    renderer.register("AiFillEdit", Pencil);
-    renderer.register("AiFillDelete", Trash2);
-    // Markdown file icon (used for markdown-related openers)
-    renderer.register("AiOutlineFileMarkdown", FileText);
-    renderer.register("AiFillFileMarkdown", FileText);
-    // Dedicated icon id for Monaco/code editor openers
-    renderer.register("AiOutlineCodeEditor", FileCode);
-    renderer.register("AiOutlineReload", RefreshCw);
-    renderer.register("AiOutlineFileText", FileText);
-    renderer.register("AiFillFileText", FileText);
+    renderer.register("Link", Link);
+    renderer.register("FolderPlus", FolderPlus);
+    renderer.register("FilePlus", FilePlus);
+    renderer.register("Plus", Plus);
+    renderer.register("Brain", Brain);
+    renderer.register("Pencil", Pencil);
+    renderer.register("Trash2", Trash2);
+    renderer.register("Copy", Copy);
+    renderer.register("FileText", FileText);
+    renderer.register("FileCode", FileCode);
+    renderer.register("RefreshCw", RefreshCw);
+    renderer.register("PenTool", PenTool);
+    renderer.register("Network", Network);
+    renderer.register("SiMarkdown", SiMarkdown);
   },
 });

@@ -34,7 +34,7 @@ export default createTreePlugin<FolderTreeNode>({
             failMessage: t("tree.deleteFolderHint"),
           },
         ],
-        icon: "AiFillDelete",
+        icon: "Trash2",
       },
     ]);
     eventBus.on(TreeEventKeys.DeleteNode, async ({ node, event }) => {

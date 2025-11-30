@@ -11,7 +11,7 @@ export const provideExcalidraw = createPlugin({
       id: "excalidraw",
       label: t("apps.excalidraw"),
       showInTreeMenu: true,
-      icon: "AiOutlineFileAdd",
+      icon: "PenTool",
       match: [".excalidraw.json", ".excalidraw"],
       priority: 100,
       templates: [
@@ -20,7 +20,7 @@ export const provideExcalidraw = createPlugin({
           label: t("excalidraw.newFile"),
           defaultFileName: "Untitled.excalidraw.json",
           initialContent: "{}",
-          icon: "AiOutlineFileAdd",
+          icon: "PenTool",
         },
       ],
       init: (uri) => {

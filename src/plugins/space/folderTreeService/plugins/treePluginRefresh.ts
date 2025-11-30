@@ -29,7 +29,7 @@ export default createTreeHelper<FolderTreeNode>().createPlugin({
         name: t("tree.refresh"),
         label: t("tree.refresh"),
         when: "level === 0 || type === 'dir'",
-        icon: "AiOutlineReload",
+        icon: "RefreshCw",
         group: "more",
       },
     ]);

@@ -6,6 +6,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useColorMode } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { MAX_NODE_WIDTH, MIN_NODE_HEIGHT } from "./mind-map/constants";
 import type { MindMapStore } from "./mind-map/mind-map-store";
@@ -51,6 +52,9 @@ const STATUS_CLASS_MAP: Record<MindMapSaveStatus, string> = {
 
 export const MindFlowCanvas = ({ store, saveStatus }: MindFlowCanvasProps) => {
   const { t } = useTranslation();
+  const { colorMode } = useColorMode();
+  const theme = colorMode === "dark" ? ThemeMode.DARK : ThemeMode.LIGHT;
+
   const {
     nodes,
     selectedId,
@@ -69,7 +73,6 @@ export const MindFlowCanvas = ({ store, saveStatus }: MindFlowCanvasProps) => {
     canRedo,
   } = useMindMap(store);
 
-  const [theme, setTheme] = useState<ThemeMode>(ThemeMode.LIGHT);
   const [viewport, setViewport] = useState<ViewportState>(buildViewport);
   const [isPanning, setIsPanning] = useState(false);
   const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
@@ -349,9 +352,6 @@ export const MindFlowCanvas = ({ store, saveStatus }: MindFlowCanvasProps) => {
       redo: t("mindFlow.toolbar.redo"),
       addChild: t("mindFlow.toolbar.addChild"),
       deleteNode: t("mindFlow.toolbar.deleteNode"),
-      themeLight: t("mindFlow.toolbar.themeLight"),
-      themeDark: t("mindFlow.toolbar.themeDark"),
-      themeMidnight: t("mindFlow.toolbar.themeMidnight"),
     }),
     [t],
   );
@@ -469,8 +469,6 @@ export const MindFlowCanvas = ({ store, saveStatus }: MindFlowCanvasProps) => {
         onRedo={redo}
         onAdd={() => selectedId && addChild(selectedId)}
         onDelete={() => selectedId && deleteNode(selectedId)}
-        currentTheme={theme}
-        onSetTheme={setTheme}
         labels={toolbarLabels}
       />
 

@@ -122,10 +122,7 @@
       "undo": "Undo (Ctrl+Z)",
       "redo": "Redo (Ctrl+Y)",
       "addChild": "Add child (Tab)",
-      "deleteNode": "Delete node (Del)",
-      "themeLight": "Light theme",
-      "themeDark": "Dark theme",
-      "themeMidnight": "Midnight theme"
+      "deleteNode": "Delete node (Del)"
     },
     "controls": {
       "zoomIn": "Zoom in",

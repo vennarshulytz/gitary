@@ -1,14 +1,10 @@
-import { Moon, Plus, Redo, Sun, Trash2, Undo, Zap } from "lucide-react";
-import { ThemeMode } from "../types";
+import { Plus, Redo, Trash2, Undo } from "lucide-react";
 
 interface ToolbarLabels {
   undo: string;
   redo: string;
   addChild: string;
   deleteNode: string;
-  themeLight: string;
-  themeDark: string;
-  themeMidnight: string;
 }
 
 interface ToolbarProps {
@@ -18,8 +14,6 @@ interface ToolbarProps {
   onRedo: () => void;
   onAdd: () => void;
   onDelete: () => void;
-  currentTheme: ThemeMode;
-  onSetTheme: (mode: ThemeMode) => void;
   labels: ToolbarLabels;
   className?: string;
 }
@@ -31,8 +25,6 @@ export const Toolbar = ({
   onRedo,
   onAdd,
   onDelete,
-  currentTheme,
-  onSetTheme,
   labels,
   className = "",
 }: ToolbarProps) => (
@@ -75,40 +67,5 @@ export const Toolbar = ({
       </button>
     </div>
 
-    <div className="flex items-center gap-1 pl-2">
-      <button
-        onClick={() => onSetTheme(ThemeMode.LIGHT)}
-        className={`p-2 rounded-lg transition-colors ${
-          currentTheme === ThemeMode.LIGHT
-            ? "bg-slate-200 dark:bg-slate-600"
-            : "hover:bg-slate-100 dark:hover:bg-slate-700"
-        }`}
-        title={labels.themeLight}
-      >
-        <Sun size={16} className="text-amber-500" />
-      </button>
-      <button
-        onClick={() => onSetTheme(ThemeMode.DARK)}
-        className={`p-2 rounded-lg transition-colors ${
-          currentTheme === ThemeMode.DARK
-            ? "bg-slate-200 dark:bg-slate-600"
-            : "hover:bg-slate-100 dark:hover:bg-slate-700"
-        }`}
-        title={labels.themeDark}
-      >
-        <Moon size={16} className="text-indigo-400" />
-      </button>
-      <button
-        onClick={() => onSetTheme(ThemeMode.MIDNIGHT)}
-        className={`p-2 rounded-lg transition-colors ${
-          currentTheme === ThemeMode.MIDNIGHT
-            ? "bg-slate-200 dark:bg-slate-600"
-            : "hover:bg-slate-100 dark:hover:bg-slate-700"
-        }`}
-        title={labels.themeMidnight}
-      >
-        <Zap size={16} className="text-emerald-500" />
-      </button>
-    </div>
   </div>
 );

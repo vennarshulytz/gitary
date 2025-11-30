@@ -122,10 +122,7 @@
       "undo": "撤销 (Ctrl+Z)",
       "redo": "重做 (Ctrl+Y)",
       "addChild": "添加子节点 (Tab)",
-      "deleteNode": "删除节点 (Del)",
-      "themeLight": "浅色主题",
-      "themeDark": "深色主题",
-      "themeMidnight": "午夜主题"
+      "deleteNode": "删除节点 (Del)"
     },
     "controls": {
       "zoomIn": "放大",

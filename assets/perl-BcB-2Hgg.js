@@ -1,0 +1,1 @@
+import{en as e,tn as t}from"./monaco-D1hk-RPG.js";export{e as conf,t as language};

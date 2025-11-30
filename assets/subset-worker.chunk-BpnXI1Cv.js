@@ -1,1 +1,0 @@
-import{n as e}from"./excalidraw-BgpgTCpH.js";export{e as WorkerUrl};

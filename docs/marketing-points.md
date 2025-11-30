@@ -2,7 +2,7 @@
 
 ## Core Positioning
 
-**Notion-like editing + Excalidraw drawing + AI Assistant, running on your Git repositories**
+**Notion-like editing + Excalidraw drawing + Draw.io + Mind Map + AI Assistant, running on your Git repositories**
 
 ## Existing Marketing Points
 
@@ -15,6 +15,7 @@
 ### 2. 🎨 Professional Diagramming Support
 - **Excalidraw**: Built-in whiteboard for beautiful diagrams and sketches
 - **Draw.io**: Professional diagram editor for flowcharts, UML, network diagrams, and more
+- **Mind Map**: Create and edit mind maps with node editing, drag-and-drop layout, and auto-save
 - Draw flowcharts, architecture diagrams, wireframes, system diagrams, and more
 - All drawings saved directly to your Git repository
 - Professional drawing tools (shapes, arrows, connectors, text)

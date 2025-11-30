@@ -13,6 +13,8 @@ import excalidrawExampleZh from "./excalidraw-example-zh.json?raw";
 import excalidrawExampleEn from "./excalidraw-example-en.json?raw";
 import drawioExampleZh from "./drawio-example-zh.xml?raw";
 import drawioExampleEn from "./drawio-example-en.xml?raw";
+import mindmapExampleZh from "./mindmap-example-zh.json?raw";
+import mindmapExampleEn from "./mindmap-example-en.json?raw";
 
 const cache = CacheController.create({
   scope: "spaceStateCache",
@@ -71,6 +73,11 @@ const getDrawioExampleContent = (): string => {
   return lang === "zh" ? drawioExampleZh : drawioExampleEn;
 };
 
+const getMindmapExampleContent = (): string => {
+  const lang = getCurrentLanguage();
+  return lang === "zh" ? mindmapExampleZh : mindmapExampleEn;
+};
+
 export const pluginAddInitialIndexedDbSpace = createPlugin({
   initilize(xbook) {
     // Use singleton spaceService directly
@@ -115,15 +122,18 @@ export const pluginAddInitialIndexedDbSpace = createPlugin({
           const markdownTutorialFileName = lang === "en" ? "/Markdown-Tutorial.md" : "/Markdown-教程.md";
           const excalidrawExampleFileName = lang === "zh" ? "/Excalidraw-示例.excalidraw.json" : "/Excalidraw-Example.excalidraw.json";
           const drawioExampleFileName = lang === "zh" ? "/Draw.io-示例.drawio" : "/Draw.io-Example.drawio";
+          const mindmapExampleFileName = lang === "zh" ? "/思维导图-示例.mindmap.json" : "/Mind-Map-Example.mindmap.json";
           const markdownTutorialContent = getMarkdownTutorialContent();
           const excalidrawExampleContent = getExcalidrawExampleContent();
           const drawioExampleContent = getDrawioExampleContent();
+          const mindmapExampleContent = getMindmapExampleContent();
           
           await createFileIfNotExists("/README.md", readMeContent);
           await createFileIfNotExists(connectGitFileName, connectGitContent);
           await createFileIfNotExists(markdownTutorialFileName, markdownTutorialContent);
           await createFileIfNotExists(excalidrawExampleFileName, excalidrawExampleContent);
           await createFileIfNotExists(drawioExampleFileName, drawioExampleContent);
+          await createFileIfNotExists(mindmapExampleFileName, mindmapExampleContent);
           
           cache.set(space.id, {
             ...cache.get(space.id, getDefaultSpaceState()),

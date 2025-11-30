@@ -8,6 +8,7 @@ Gitary is a powerful knowledge management tool that brings Notion-style editing 
 
 - **📝 Notion-like Editing**: WYSIWYG Markdown editor with support for math formulas and code highlighting
 - **🎨 Professional Diagramming**: Support for Excalidraw and Draw.io to create flowcharts, architecture diagrams, UML diagrams, and more
+- **🧠 Mind Map**: Create and edit mind maps with node editing, drag-and-drop layout, and auto-save
 - **🤖 AI-Powered Diagram Generation**: Describe in natural language, AI automatically generates Excalidraw diagrams
 - **💬 Global AI Assistant**: Intelligent assistant with tool integration, can operate files, diagrams, and workspace
 - **🔄 Git Integration**: Notes stored directly in Git repositories, enjoy version control and cloud synchronization
@@ -18,9 +19,10 @@ Gitary is a powerful knowledge management tool that brings Notion-style editing 
 1. **Create Notes**: Right-click in the file tree to create new Markdown files
 2. **Use Excalidraw**: Create `.excalidraw.json` files to start drawing
 3. **Use Draw.io**: Create `.drawio` files to create professional diagrams (flowcharts, UML diagrams, etc.)
-4. **AI Diagram Generation**: Open AI assistant in Excalidraw, describe in natural language to generate diagrams
-4. **Global AI Assistant**: Click the AI icon in the sidebar for intelligent help anytime
-5. **Connect Git Repository**: Check "Connect-Git-Repository.md" to learn how to connect GitHub/Gitee
+4. **Use Mind Map**: Create `.mindmap.json` files to create mind maps with node editing and drag-and-drop layout
+5. **AI Diagram Generation**: Open AI assistant in Excalidraw, describe in natural language to generate diagrams
+6. **Global AI Assistant**: Click the AI icon in the sidebar for intelligent help anytime
+7. **Connect Git Repository**: Check "Connect-Git-Repository.md" to learn how to connect GitHub/Gitee
 
 ## 📚 More Documentation
 
@@ -28,3 +30,4 @@ Gitary is a powerful knowledge management tool that brings Notion-style editing 
 - **Connect Git Repository**: Check "Connect-Git-Repository.md" to learn how to connect GitHub/Gitee
 - **Excalidraw Example**: Open "Excalidraw-Example.excalidraw.json" to see drawing examples
 - **Draw.io Example**: Open "Draw.io-Example.drawio" to see professional diagram examples
+- **Mind Map Example**: Open "Mind-Map-Example.mindmap.json" to see mind map examples

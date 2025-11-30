@@ -9,7 +9,7 @@ Open GitHub, Gitee, and GitCode repositories in Gitary (`gitary.app`) with one c
 - Click the extension icon on a repository page (GitHub/Gitee/GitCode) to open it in Gitary.
 - Right-click on repository pages or links and select "Open in Gitary".
 - Supports **GitHub**, **Gitee**, and **GitCode** platforms.
-- Enjoy **Notion-like editing**, **AI-powered diagramming (Excalidraw & Draw.io)**, and **Global AI Assistant** capabilities in Gitary for enhanced note-taking, AI-generated diagrams, and intelligent assistance.
+- Enjoy **Notion-like editing**, **AI-powered diagramming (Excalidraw & Draw.io)**, **Mind Map**, and **Global AI Assistant** capabilities in Gitary for enhanced note-taking, AI-generated diagrams, mind mapping, and intelligent assistance.
 
 ## Installation
 
@@ -68,7 +68,7 @@ Upload this `gitary-companion.zip` to Chrome Web Store.
 - Extension Name:
   - Gitary Companion
 - Short Description (max 132 characters):
-  - Open GitHub/Gitee/GitCode repos in Gitary: Notion-like editing + Professional diagramming (Excalidraw & Draw.io) for code & notes.
+  - Open GitHub/Gitee/GitCode repos in Gitary: Notion-like editing + Professional diagramming (Excalidraw & Draw.io) + Mind Map for code & notes.
 - Detailed Description (multi-paragraph):
 
 > Gitary Companion lets you quickly open GitHub, Gitee, and GitCode repositories in Gitary for a more professional code reading and knowledge management experience.  
@@ -79,6 +79,7 @@ Upload this `gitary-companion.zip` to Chrome Web Store.
 > - Multi-platform support: Supports GitHub, Gitee, and GitCode platforms.  
 > - Notion-like editing: Enjoy powerful WYSIWYG Markdown editing with live preview, slash commands, and rich formatting.  
 > - Professional diagramming: Create beautiful diagrams, flowcharts, UML diagrams, and sketches with Excalidraw & Draw.io directly in your Git repositories.  
+> - Mind Map: Create and edit mind maps with node editing, drag-and-drop layout, and auto-save.  
 > - Auto repository detection: Intelligently parses repository URLs, only works on supported pages.  
 >  
 > Permission Explanation:  

@@ -1,0 +1,110 @@
+{
+  "rootId": "root",
+  "nodes": {
+    "root": {
+      "id": "root",
+      "text": "Gitary Mind Map Features",
+      "parentId": null,
+      "children": ["node1", "node2", "node3"],
+      "isExpanded": true,
+      "depth": 0
+    },
+    "node1": {
+      "id": "node1",
+      "text": "Core Features",
+      "parentId": "root",
+      "children": ["node1-1", "node1-2", "node1-3"],
+      "isExpanded": true,
+      "depth": 1
+    },
+    "node1-1": {
+      "id": "node1-1",
+      "text": "Node Editing",
+      "parentId": "node1",
+      "children": [],
+      "isExpanded": true,
+      "depth": 2
+    },
+    "node1-2": {
+      "id": "node1-2",
+      "text": "Drag & Drop Layout",
+      "parentId": "node1",
+      "children": [],
+      "isExpanded": true,
+      "depth": 2
+    },
+    "node1-3": {
+      "id": "node1-3",
+      "text": "Auto Save",
+      "parentId": "node1",
+      "children": [],
+      "isExpanded": true,
+      "depth": 2
+    },
+    "node2": {
+      "id": "node2",
+      "text": "Keyboard Shortcuts",
+      "parentId": "root",
+      "children": ["node2-1", "node2-2", "node2-3"],
+      "isExpanded": true,
+      "depth": 1
+    },
+    "node2-1": {
+      "id": "node2-1",
+      "text": "Tab: Add Child",
+      "parentId": "node2",
+      "children": [],
+      "isExpanded": true,
+      "depth": 2
+    },
+    "node2-2": {
+      "id": "node2-2",
+      "text": "Enter: Add Sibling",
+      "parentId": "node2",
+      "children": [],
+      "isExpanded": true,
+      "depth": 2
+    },
+    "node2-3": {
+      "id": "node2-3",
+      "text": "Space: Edit Node",
+      "parentId": "node2",
+      "children": [],
+      "isExpanded": true,
+      "depth": 2
+    },
+    "node3": {
+      "id": "node3",
+      "text": "Use Cases",
+      "parentId": "root",
+      "children": ["node3-1", "node3-2", "node3-3"],
+      "isExpanded": true,
+      "depth": 1
+    },
+    "node3-1": {
+      "id": "node3-1",
+      "text": "Knowledge Organization",
+      "parentId": "node3",
+      "children": [],
+      "isExpanded": true,
+      "depth": 2
+    },
+    "node3-2": {
+      "id": "node3-2",
+      "text": "Project Planning",
+      "parentId": "node3",
+      "children": [],
+      "isExpanded": true,
+      "depth": 2
+    },
+    "node3-3": {
+      "id": "node3-3",
+      "text": "Brainstorming",
+      "parentId": "node3",
+      "children": [],
+      "isExpanded": true,
+      "depth": 2
+    }
+  }
+}
+

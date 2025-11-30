@@ -6,9 +6,9 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-> **Notion-like editing + Excalidraw & Draw.io drawing for your Git repositories**
+> **Notion-like editing + Excalidraw & Draw.io drawing + Mind Map for your Git repositories**
 
-Bring Notion-style powerful editing experience and professional diagramming capabilities (Excalidraw & Draw.io) to your Git repositories. Your notes, your data, your control.
+Bring Notion-style powerful editing experience, professional diagramming capabilities (Excalidraw & Draw.io), and mind map functionality to your Git repositories. Your notes, your data, your control.
 
 ## 🌐 Try Online
 
@@ -102,6 +102,7 @@ For more details, see the [Gitary Companion README](browser-extension/gitary-com
 
 - **Excalidraw**: Built-in whiteboard for creating beautiful diagrams and sketches
 - **Draw.io**: Professional diagram editor for flowcharts, UML diagrams, network diagrams, and more
+- **Mind Map**: Create and edit mind maps with node editing, drag-and-drop layout, and auto-save
 - Draw flowcharts, architecture diagrams, wireframes, system diagrams, and more
 - All drawings saved directly to your Git repository
 - Professional drawing tools with shapes, arrows, connectors, and text
@@ -172,4 +173,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-**Gitary** - Notion-like editing + AI-powered diagramming (Excalidraw & Draw.io) + Global AI Assistant for your Git repositories. Your notes, your data, your control.
+**Gitary** - Notion-like editing + AI-powered diagramming (Excalidraw & Draw.io) + Mind Map + Global AI Assistant for your Git repositories. Your notes, your data, your control.

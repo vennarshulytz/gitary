@@ -8,6 +8,7 @@ Gitary 是一个强大的知识管理工具，将 Notion 风格的编辑体验�
 
 - **📝 Notion-like 编辑**：所见即所得的 Markdown 编辑器，支持数学公式、代码高亮
 - **🎨 专业图表绘制**：支持 Excalidraw 和 Draw.io，绘制流程图、架构图、UML 图等
+- **🧠 思维导图**：创建和编辑思维导图，支持节点编辑、拖拽布局、自动保存
 - **🤖 AI 智能画图**：用自然语言描述，AI 自动生成 Excalidraw 图表
 - **💬 全局 AI 助手**：智能助手集成工具，可以操作文件、图表和工作区
 - **🔄 Git 集成**：笔记直接存储在 Git 仓库，享受版本控制和云端同步
@@ -18,9 +19,10 @@ Gitary 是一个强大的知识管理工具，将 Notion 风格的编辑体验�
 1. **创建笔记**：在文件树中右键创建新的 Markdown 文件
 2. **使用 Excalidraw**：创建 `.excalidraw.json` 文件开始画图
 3. **使用 Draw.io**：创建 `.drawio` 文件创建专业图表（流程图、UML 图等）
-4. **AI 生成图表**：在 Excalidraw 中打开 AI 助手，用自然语言描述生成图表
-4. **全局 AI 助手**：点击侧边栏的 AI 图标，随时获取智能帮助
-5. **连接 Git 仓库**：查看「连接-Git-仓库.md」了解如何连接 GitHub/Gitee
+4. **使用思维导图**：创建 `.mindmap.json` 文件创建思维导图，支持节点编辑和拖拽布局
+5. **AI 生成图表**：在 Excalidraw 中打开 AI 助手，用自然语言描述生成图表
+6. **全局 AI 助手**：点击侧边栏的 AI 图标，随时获取智能帮助
+7. **连接 Git 仓库**：查看「连接-Git-仓库.md」了解如何连接 GitHub/Gitee
 
 ## 📚 更多文档
 
@@ -28,3 +30,4 @@ Gitary 是一个强大的知识管理工具，将 Notion 风格的编辑体验�
 - **连接 Git 仓库**：查看「连接-Git-仓库.md」了解如何连接 GitHub/Gitee
 - **Excalidraw 示例**：打开「Excalidraw-示例.excalidraw.json」查看画图示例
 - **Draw.io 示例**：打开「Draw.io-示例.drawio」查看专业图表示例
+- **思维导图示例**：打开「思维导图-示例.mindmap.json」查看思维导图示例

@@ -1,0 +1,110 @@
+{
+  "rootId": "root",
+  "nodes": {
+    "root": {
+      "id": "root",
+      "text": "Gitary 思维导图功能",
+      "parentId": null,
+      "children": ["node1", "node2", "node3"],
+      "isExpanded": true,
+      "depth": 0
+    },
+    "node1": {
+      "id": "node1",
+      "text": "核心功能",
+      "parentId": "root",
+      "children": ["node1-1", "node1-2", "node1-3"],
+      "isExpanded": true,
+      "depth": 1
+    },
+    "node1-1": {
+      "id": "node1-1",
+      "text": "节点编辑",
+      "parentId": "node1",
+      "children": [],
+      "isExpanded": true,
+      "depth": 2
+    },
+    "node1-2": {
+      "id": "node1-2",
+      "text": "拖拽布局",
+      "parentId": "node1",
+      "children": [],
+      "isExpanded": true,
+      "depth": 2
+    },
+    "node1-3": {
+      "id": "node1-3",
+      "text": "自动保存",
+      "parentId": "node1",
+      "children": [],
+      "isExpanded": true,
+      "depth": 2
+    },
+    "node2": {
+      "id": "node2",
+      "text": "快捷键操作",
+      "parentId": "root",
+      "children": ["node2-1", "node2-2", "node2-3"],
+      "isExpanded": true,
+      "depth": 1
+    },
+    "node2-1": {
+      "id": "node2-1",
+      "text": "Tab: 添加子节点",
+      "parentId": "node2",
+      "children": [],
+      "isExpanded": true,
+      "depth": 2
+    },
+    "node2-2": {
+      "id": "node2-2",
+      "text": "Enter: 添加兄弟节点",
+      "parentId": "node2",
+      "children": [],
+      "isExpanded": true,
+      "depth": 2
+    },
+    "node2-3": {
+      "id": "node2-3",
+      "text": "Space: 编辑节点",
+      "parentId": "node2",
+      "children": [],
+      "isExpanded": true,
+      "depth": 2
+    },
+    "node3": {
+      "id": "node3",
+      "text": "使用场景",
+      "parentId": "root",
+      "children": ["node3-1", "node3-2", "node3-3"],
+      "isExpanded": true,
+      "depth": 1
+    },
+    "node3-1": {
+      "id": "node3-1",
+      "text": "知识整理",
+      "parentId": "node3",
+      "children": [],
+      "isExpanded": true,
+      "depth": 2
+    },
+    "node3-2": {
+      "id": "node3-2",
+      "text": "项目规划",
+      "parentId": "node3",
+      "children": [],
+      "isExpanded": true,
+      "depth": 2
+    },
+    "node3-3": {
+      "id": "node3-3",
+      "text": "头脑风暴",
+      "parentId": "node3",
+      "children": [],
+      "isExpanded": true,
+      "depth": 2
+    }
+  }
+}
+

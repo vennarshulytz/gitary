@@ -6,10 +6,10 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-> **类 Notion 编辑 + Excalidraw & Draw.io 画图，运行在你的 Git 仓库上**  
-> **为你的 Git 仓库带来 Notion 风格的强大编辑体验和专业图表绘制能力**
+> **类 Notion 编辑 + Excalidraw & Draw.io 画图 + 思维导图，运行在你的 Git 仓库上**  
+> **为你的 Git 仓库带来 Notion 风格的强大编辑体验、专业图表绘制能力和思维导图功能**
 
-将 Notion 风格的强大编辑体验和专业图表绘制能力（Excalidraw & Draw.io）带到你的 Git 仓库中。你的笔记，你的数据，你的控制权。
+将 Notion 风格的强大编辑体验、专业图表绘制能力（Excalidraw & Draw.io）和思维导图功能带到你的 Git 仓库中。你的笔记，你的数据，你的控制权。
 
 ## 🌐 在线体验
 
@@ -103,6 +103,7 @@
 
 - **Excalidraw**：内置白板，创建精美的图表和草图
 - **Draw.io**：专业图表编辑器，支持流程图、UML 图、网络图等
+- **思维导图**：创建和编辑思维导图，支持节点编辑、拖拽布局、自动保存
 - 绘制流程图、架构图、线框图、系统图等
 - 所有绘图直接保存到你的 Git 仓库
 - 专业的绘图工具，支持形状、箭头、连接线和文本
@@ -173,4 +174,4 @@ pnpm dev
 
 ---
 
-**Gitary** - 类 Notion 编辑 + AI 智能画图（Excalidraw & Draw.io）+ 全局 AI 助手，运行在你的 Git 仓库上。你的笔记，你的数据，你的控制权。
+**Gitary** - 类 Notion 编辑 + AI 智能画图（Excalidraw & Draw.io）+ 思维导图 + 全局 AI 助手，运行在你的 Git 仓库上。你的笔记，你的数据，你的控制权。

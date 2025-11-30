@@ -1,0 +1,1 @@
+import{Xt as e,Zt as t}from"./monaco-CUhUvlrB.js";export{e as conf,t as language};

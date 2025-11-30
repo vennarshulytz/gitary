@@ -108,23 +108,49 @@
     "wordCount": "字数: {{count}}"
   },
   "mindFlow": {
-    "loadingFailed": "加载失败",
-    "loadDataFailed": "无法加载保存的数据",
-    "error": "错误",
-    "selectNodeAndApiKey": "请选择节点并输入API密钥",
-    "generateFailed": "生成失败",
-    "cannotGenerate": "无法生成新的想法，请重试",
-    "enterContent": "请输入内容",
-    "createCenterTheme": "创建中心主题",
-    "enterMainContent": "输入主内容...",
-    "create": "创建",
-    "selectedNode": "选中节点: {{content}}",
-    "addNodeContent": "手动添加节点内容...",
-    "addNode": "添加节点",
-    "deepAnalysis": "深入分析",
-    "lateralThinking": "横向联想",
-    "abstractSummary": "抽象概括",
-    "confirmDelete": "确定要删除这个节点吗？相关的连接也会被删除。"
+    "loading": "正在加载思维导图...",
+    "uriRequired": "需要文件 URI",
+    "newFile": "新建思维导图",
+    "status": {
+      "idle": "所有更改已保存",
+      "dirty": "存在未保存的更改",
+      "saving": "保存中...",
+      "saved": "已保存",
+      "error": "保存失败"
+    },
+    "toolbar": {
+      "undo": "撤销 (Ctrl+Z)",
+      "redo": "重做 (Ctrl+Y)",
+      "addChild": "添加子节点 (Tab)",
+      "deleteNode": "删除节点 (Del)",
+      "themeLight": "浅色主题",
+      "themeDark": "深色主题",
+      "themeMidnight": "午夜主题"
+    },
+    "controls": {
+      "zoomIn": "放大",
+      "zoomOut": "缩小",
+      "reset": "重置视图"
+    },
+    "instructions": {
+      "title": "快捷键",
+      "show": "显示快捷键",
+      "hide": "隐藏快捷键",
+      "select": "选中",
+      "selectAction": "单击",
+      "edit": "编辑",
+      "editAction": "双击 / 空格",
+      "addChild": "添加子节点",
+      "addChildAction": "Tab",
+      "addSibling": "添加兄弟节点",
+      "addSiblingAction": "Enter",
+      "delete": "删除",
+      "deleteAction": "Del / Backspace",
+      "navigate": "导航",
+      "navigateAction": "方向键",
+      "pan": "移动画布",
+      "panAction": "拖拽画布"
+    }
   },
   "auth": {
     "unsupportedPlatform": "不支持的平台: {{platform}}",
@@ -162,7 +188,7 @@
   "apps": {
     "zenNotes": "禅意笔记",
     "streamingNote": "流式笔记",
-    "mindFlow": "思维流",
+    "mindFlow": "思维导图",
     "community": "社区",
     "aiStoryCards": "AI故事卡",
     "aiResume": "AI简历助手",

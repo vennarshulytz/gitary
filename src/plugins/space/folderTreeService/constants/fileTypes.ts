@@ -1,4 +1,4 @@
-import { PenTool, Network } from "lucide-react";
+import { Brain, PenTool, Network } from "lucide-react";
 import {
   AiFillCode,
   AiFillFile,
@@ -32,6 +32,11 @@ export const FILE_TYPES: Record<string, FileTypeConfig> = {
     extensions: [".drawio", ".xml"],
     icon: Network,
     color: "#f59e0b",
+  },
+  mindMap: {
+    extensions: [".mindmap.json", ".mindflow.json"],
+    icon: Brain,
+    color: "#0ea5e9",
   },
   markdown: {
     extensions: [".md", ".markdown"],

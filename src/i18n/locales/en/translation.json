@@ -108,23 +108,49 @@
     "wordCount": "Word count: {{count}}"
   },
   "mindFlow": {
-    "loadingFailed": "Loading Failed",
-    "loadDataFailed": "Unable to load saved data",
-    "error": "Error",
-    "selectNodeAndApiKey": "Please select a node and enter API key",
-    "generateFailed": "Generation Failed",
-    "cannotGenerate": "Unable to generate new ideas, please try again",
-    "enterContent": "Please enter content",
-    "createCenterTheme": "Create Center Theme",
-    "enterMainContent": "Enter main content...",
-    "create": "Create",
-    "selectedNode": "Selected node: {{content}}",
-    "addNodeContent": "Manually add node content...",
-    "addNode": "Add Node",
-    "deepAnalysis": "Deep Analysis",
-    "lateralThinking": "Lateral Thinking",
-    "abstractSummary": "Abstract Summary",
-    "confirmDelete": "Are you sure you want to delete this node? Related connections will also be deleted."
+    "loading": "Loading mind map...",
+    "uriRequired": "File URI is required",
+    "newFile": "New mind map",
+    "status": {
+      "idle": "All changes saved",
+      "dirty": "Unsaved changes",
+      "saving": "Saving...",
+      "saved": "Saved",
+      "error": "Save failed"
+    },
+    "toolbar": {
+      "undo": "Undo (Ctrl+Z)",
+      "redo": "Redo (Ctrl+Y)",
+      "addChild": "Add child (Tab)",
+      "deleteNode": "Delete node (Del)",
+      "themeLight": "Light theme",
+      "themeDark": "Dark theme",
+      "themeMidnight": "Midnight theme"
+    },
+    "controls": {
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "reset": "Reset view"
+    },
+    "instructions": {
+      "title": "Shortcuts",
+      "show": "Show shortcuts",
+      "hide": "Hide shortcuts",
+      "select": "Select",
+      "selectAction": "Click",
+      "edit": "Edit",
+      "editAction": "Double click / Space",
+      "addChild": "Add child",
+      "addChildAction": "Tab",
+      "addSibling": "Add sibling",
+      "addSiblingAction": "Enter",
+      "delete": "Delete",
+      "deleteAction": "Del / Backspace",
+      "navigate": "Navigate",
+      "navigateAction": "Arrow keys",
+      "pan": "Pan",
+      "panAction": "Drag canvas"
+    }
   },
   "auth": {
     "unsupportedPlatform": "Unsupported platform: {{platform}}",
@@ -162,7 +188,7 @@
   "apps": {
     "zenNotes": "Zen Notes",
     "streamingNote": "Streaming Note",
-    "mindFlow": "Mind Flow",
+    "mindFlow": "Mind Map",
     "community": "Community",
     "aiStoryCards": "AI Story Cards",
     "aiResume": "AI Resume Assistant",

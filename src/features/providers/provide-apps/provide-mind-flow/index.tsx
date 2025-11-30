@@ -1,3 +1,4 @@
+import { DEFAULT_MIND_MAP_DATA } from "@/components/mind-map/constants";
 import { openerService } from "@/services/opener.service";
 import { AppMindFlow } from "./app";
 import { createPlugin } from "xbook/common/createPlugin";
@@ -6,15 +7,25 @@ import { t } from "@/i18n/utils";
 export const provideMindFlow = createPlugin({
   initilize(xbook) {
     xbook.componentService.register("mind-flow", AppMindFlow);
-    // Use singleton openerService
     openerService.register({
       id: "mind-flow",
       label: t("apps.mindFlow"),
-      match: [".mindflow.json"],
+      showInTreeMenu: true,
+      icon: "AiOutlineFileAdd",
+      match: [".mindflow.json", ".mindmap.json"],
       priority: 100,
+      templates: [
+        {
+          id: "new-mindflow",
+          label: t("mindFlow.newFile"),
+          defaultFileName: "Untitled.mindmap.json",
+          initialContent: JSON.stringify(DEFAULT_MIND_MAP_DATA, null, 2),
+          icon: "AiOutlineFileAdd",
+        },
+      ],
       init: (uri) => {
-        const getFileName = (uri: string) => {
-          return uri.split("/").pop() ?? "unknown";
+        const getFileName = (value: string) => {
+          return value.split("/").pop() ?? "unknown";
         };
         xbook.layoutService.pageBox.addPage({
           id: `mind-flow:${uri}`,

@@ -1,5 +1,6 @@
 import { FolderTreeNode } from "@/plugins/space/folderTreeService/types";
 import { spaceHelper } from "@/helpers/space.helper";
+import { MenuIcon } from "@/toolkit/factories/menuController";
 import { device } from "xbook/common/device";
 import xbook from "xbook/index";
 
@@ -28,9 +29,9 @@ export type FileTemplate = {
    */
   initialContent?: FileTemplateInitialContent;
   /**
-   * Optional icon id for menus.
+   * Optional icon id/object for menus.
    */
-  icon?: string;
+  icon?: MenuIcon;
 };
 
 export type FileOpenerOptions = {
@@ -44,9 +45,9 @@ export type FileOpenerOptions = {
    */
   label?: string;
   /**
-   * Optional icon id for use in menus (renderer key).
+   * Optional icon id/object for use in menus (renderer key).
    */
-  icon?: string;
+  icon?: MenuIcon;
   /**
    * Whether this opener should appear as a dedicated "Open with ..." entry
    * in file tree/context menus.

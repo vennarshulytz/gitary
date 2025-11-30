@@ -1,4 +1,4 @@
-import { openerService } from "@/services/opener.service";
+import { openerService, type FileOpenerOptions, type FileTemplate } from "@/services/opener.service";
 import { createFolderTreePlugin } from "@/plugins/space/folderTreeService/plugins/base";
 import { TreeEventKeys, TreeNodeTypeEnum, TreeServicePoints } from "@/plugins/space/folderTreeService/tokens";
 import { FolderTreeNode } from "@/plugins/space/folderTreeService/types";
@@ -24,26 +24,11 @@ export default createFolderTreePlugin({
       string,
       {
         openerId: string;
-        template: {
-          id: string;
-          label: string;
-          defaultFileName: string;
-          initialContent?: unknown;
-          icon?: string;
-        };
+        template: FileTemplate;
       }
     >();
 
-    const registerTemplateMenu = (opener: {
-      id: string;
-      templates?: {
-        id: string;
-        label: string;
-        defaultFileName: string;
-        initialContent?: unknown;
-        icon?: string;
-      }[];
-    }) => {
+    const registerTemplateMenu = (opener: FileOpenerOptions) => {
       if (!opener.templates || opener.templates.length === 0) return;
 
       for (const tpl of opener.templates) {

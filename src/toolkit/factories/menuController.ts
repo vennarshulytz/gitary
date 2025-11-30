@@ -2,13 +2,23 @@ import { parseWhenClause } from "@/toolkit/utils/when-clause";
 import { defineController } from "app-toolkit";
 import { createCustomReactBean } from "rx-bean";
 import { createCRUDActions } from "xbook/utils/create-actions";
+import type { CSSProperties } from "react";
+
+export type MenuIcon =
+  | string
+  | {
+      name: string;
+      color?: string;
+      className?: string;
+      style?: CSSProperties;
+    };
 
 export interface MenuItem {
   id: string; // addFile
   key: string; // addFile
   label: string; // Add File
   order?: number;
-  icon?: string; // icon-add-file
+  icon?: MenuIcon; // icon-add-file
   group?: string; // operations/add
   when?: string; // fileType === 'dir'
   validationRules?: {

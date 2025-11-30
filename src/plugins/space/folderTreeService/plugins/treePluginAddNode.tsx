@@ -12,6 +12,10 @@ import { nanoid } from "nanoid";
 import xbook from "xbook/index";
 import { fs } from "xbook/services";
 import { t } from "@/i18n/utils";
+import { FILE_TYPES } from "@/plugins/space/folderTreeService/constants/fileTypes";
+
+const MARKDOWN_COLOR = FILE_TYPES.markdown.color;
+const FOLDER_ICON_COLOR = "var(--folder-icon-color, #facc15)";
 
 export default createTreeHelper<FolderTreeNode>().createPlugin({
   addOptions() {
@@ -48,7 +52,7 @@ export default createTreeHelper<FolderTreeNode>().createPlugin({
         label: t("tree.newFolder"),
         event: TreeEventKeys.AddFolderAt.name,
         when: "type === 'dir'",
-        icon: "FolderPlus",
+        icon: { name: "FolderPlus", color: FOLDER_ICON_COLOR },
         group: "add",
       },
       {
@@ -57,7 +61,7 @@ export default createTreeHelper<FolderTreeNode>().createPlugin({
         label: t("tree.newMarkdown"),
         event: TreeEventKeys.AddMarkdownAt.name,
         when: "type === 'dir'",
-        icon: "FileText",
+        icon: { name: "SiMarkdown", color: MARKDOWN_COLOR },
         group: "add",
       },
     ]);

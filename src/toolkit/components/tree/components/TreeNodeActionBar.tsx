@@ -16,7 +16,29 @@ import { validateMenuItem } from "@/toolkit/factories/enhanced-menu-manager";
 import { IMenuTree } from "@/toolkit/factories/menu-manager";
 import { ITreeNode } from "@/toolkit/factories/reactive-tree";
 import { TreeDataNode } from "@/toolkit/factories/treeDataStore";
+import type { Renderer } from "@/toolkit/factories/renderer";
 import { FC, useMemo } from "react";
+
+const renderMenuIcon = (
+  renderer: Renderer,
+  icon?: NodeMenuItemData["icon"],
+) => {
+  if (!icon) return null;
+  if (typeof icon === "string") {
+    return renderer.render({ type: icon });
+  }
+  const { name, color, className, style } = icon;
+  const node = renderer.render({ type: name });
+  if (!color && !className && !style) {
+    return node;
+  }
+  const mergedStyle = color ? { color, ...(style ?? {}) } : style;
+  return (
+    <span className={className} style={mergedStyle}>
+      {node}
+    </span>
+  );
+};
 
 export const TreeNodeActionBar: FC<{
   node: TreeDataNode;
@@ -65,10 +87,7 @@ export const MenuItemView: FC<{
     >
       <div className="flex flex-col gap-1 min-w-0">
         <div className="flex items-center gap-2 min-w-0">
-          {menuItem.data.icon &&
-            renderer.render({
-              type: menuItem.data.icon,
-            })}
+          {renderMenuIcon(renderer, menuItem.data.icon)}
           <span className="truncate">{menuItem.data.label}</span>
         </div>
         {!isValid && message && (
@@ -96,11 +115,7 @@ export const TreeNodeActionEntry: FC<{
           size="icon"
           className="focus:outline-none h-6 w-6"
         >
-          {menuTree.data.icon
-            ? renderer.render({
-                type: menuTree.data.icon,
-              })
-            : menuTree.data.label}
+          {renderMenuIcon(renderer, menuTree.data.icon) ?? menuTree.data.label}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-auto min-w-[180px] max-w-[320px]">

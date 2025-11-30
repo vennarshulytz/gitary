@@ -3,12 +3,13 @@ import {
   IMenuItemData,
   MenuManager,
 } from "@/toolkit/factories/menu-manager";
+import { MenuIcon } from "@/toolkit/factories/menuController";
 import { parseWhenClause } from "@/toolkit/utils/when-clause";
 
 export interface IEnhancedMenuItemData extends IMenuItemData {
   key: string; // addFile
   label: string; // Add File
-  icon?: string; // icon-add-file
+  icon?: MenuIcon; // icon-add-file
   /**
    * @description display only when the condition is true
    */

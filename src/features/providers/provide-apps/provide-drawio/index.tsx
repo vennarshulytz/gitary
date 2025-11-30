@@ -2,6 +2,9 @@ import { openerService } from "@/services/opener.service";
 import { AppDrawio } from "./app";
 import { createPlugin } from "xbook/common/createPlugin";
 import { t } from "@/i18n/utils";
+import { FILE_TYPES } from "@/plugins/space/folderTreeService/constants/fileTypes";
+
+const DRAWIO_COLOR = FILE_TYPES.drawio.color;
 
 export const provideDrawio = createPlugin({
   initilize(xbook) {
@@ -11,7 +14,7 @@ export const provideDrawio = createPlugin({
       id: "drawio",
       label: t("apps.drawio"),
       showInTreeMenu: true,
-      icon: "Network",
+      icon: { name: "Network", color: DRAWIO_COLOR },
       match: [".drawio"],
       priority: 100,
       templates: [
@@ -20,7 +23,7 @@ export const provideDrawio = createPlugin({
           label: t("drawio.newFile"),
           defaultFileName: "Untitled.drawio",
           initialContent: '<mxfile><diagram></diagram></mxfile>',
-          icon: "Network",
+          icon: { name: "Network", color: DRAWIO_COLOR },
         },
       ],
       init: (uri) => {

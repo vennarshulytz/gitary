@@ -2,6 +2,9 @@ import { openerService } from "@/services/opener.service";
 import { AppExcalidraw } from "./app";
 import { createPlugin } from "xbook/common/createPlugin";
 import { t } from "@/i18n/utils";
+import { FILE_TYPES } from "@/plugins/space/folderTreeService/constants/fileTypes";
+
+const EXCALIDRAW_COLOR = FILE_TYPES.excalidraw.color;
 
 export const provideExcalidraw = createPlugin({
   initilize(xbook) {
@@ -11,7 +14,7 @@ export const provideExcalidraw = createPlugin({
       id: "excalidraw",
       label: t("apps.excalidraw"),
       showInTreeMenu: true,
-      icon: "PenTool",
+      icon: { name: "PenTool", color: EXCALIDRAW_COLOR },
       match: [".excalidraw.json", ".excalidraw"],
       priority: 100,
       templates: [
@@ -20,7 +23,7 @@ export const provideExcalidraw = createPlugin({
           label: t("excalidraw.newFile"),
           defaultFileName: "Untitled.excalidraw.json",
           initialContent: "{}",
-          icon: "PenTool",
+          icon: { name: "PenTool", color: EXCALIDRAW_COLOR },
         },
       ],
       init: (uri) => {

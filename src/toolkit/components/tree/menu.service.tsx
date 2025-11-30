@@ -8,6 +8,7 @@ import { Renderer } from "@/toolkit/factories/renderer";
 import { TreeDataNode } from "@/toolkit/factories/treeDataStore";
 import { parseWhenClause } from "@/toolkit/utils/when-clause";
 import { Flex } from "@chakra-ui/react";
+import type { CSSProperties, ReactNode } from "react";
 
 export interface NodeMenuItem extends MenuItem {
   event?: string;
@@ -35,6 +36,26 @@ export const prepareMenuService = (options: {
         })
     );
   };
+  const renderMenuIcon = (icon?: MenuItem["icon"]): ReactNode => {
+    if (!icon) return null;
+    if (typeof icon === "string") {
+      return renderer.render({ type: icon });
+    }
+    const { name, color, className, style } = icon;
+    const node = renderer.render({ type: name });
+    if (!color && !className && !style) {
+      return node;
+    }
+    const mergedStyle: CSSProperties | undefined = color
+      ? { color, ...(style ?? {}) }
+      : style;
+    return (
+      <span className={className} style={mergedStyle}>
+        {node}
+      </span>
+    );
+  };
+
   const renderNodeMenuItem = (
     nodeMenuItem: NodeMenuItem,
     { node, level }: { node: TreeDataNode; level: number },
@@ -63,7 +84,7 @@ export const prepareMenuService = (options: {
             opacity: disabled ? 0.5 : 1,
           }}
         >
-          {icon ? renderer.render({ type: icon }) : title || name}
+          {renderMenuIcon(icon) ?? title ?? name}
         </Flex>
       );
     }
@@ -88,7 +109,7 @@ export const prepareMenuService = (options: {
         }}
       >
         {nodeMenuItem.label || nodeMenuItem.name}
-        {icon && renderer.render({ type: icon })}
+        {renderMenuIcon(icon)}
       </Flex>
     );
   };

@@ -11,6 +11,7 @@ import { TreeDataNode } from "@/toolkit/factories/treeDataStore";
 import { parseWhenClause } from "@/toolkit/utils/when-clause";
 import { Flex } from "@chakra-ui/react";
 import { MoreHorizontal, Plus } from "lucide-react";
+import type { CSSProperties, ReactNode } from "react";
 
 export type NodeMenuItemData = IEnhancedMenuItemData & {
   id: string;
@@ -98,6 +99,28 @@ export const prepareMenuService = (options: {
     );
   };
 
+  const renderMenuIcon = (
+    icon?: IEnhancedMenuItemData["icon"],
+  ): ReactNode => {
+    if (!icon) return null;
+    if (typeof icon === "string") {
+      return renderer.render({ type: icon });
+    }
+    const { name, color, className, style } = icon;
+    const rendered = renderer.render({ type: name });
+    if (!color && !className && !style) {
+      return rendered;
+    }
+    const mergedStyle: CSSProperties | undefined = color
+      ? { color, ...(style ?? {}) }
+      : style;
+    return (
+      <span className={className} style={mergedStyle}>
+        {rendered}
+      </span>
+    );
+  };
+
   const renderNodeMenuItem = (
     nodeMenuItem: NodeMenuItem,
     { node, level }: { node: TreeDataNode; level: number },
@@ -135,7 +158,7 @@ export const prepareMenuService = (options: {
             opacity: disabled ? 0.5 : 1,
           }}
         >
-          {icon ? renderer.render({ type: icon }) : title || name}
+          {renderMenuIcon(icon) ?? title ?? name}
         </Flex>
       );
     }
@@ -160,7 +183,7 @@ export const prepareMenuService = (options: {
         }}
       >
         {nodeMenuItem.data.label || nodeMenuItem.data.name}
-        {icon && renderer.render({ type: icon })}
+        {renderMenuIcon(icon)}
       </Flex>
     );
   };

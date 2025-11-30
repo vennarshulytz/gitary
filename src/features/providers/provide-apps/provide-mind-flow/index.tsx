@@ -3,6 +3,9 @@ import { openerService } from "@/services/opener.service";
 import { AppMindFlow } from "./app";
 import { createPlugin } from "xbook/common/createPlugin";
 import { t } from "@/i18n/utils";
+import { FILE_TYPES } from "@/plugins/space/folderTreeService/constants/fileTypes";
+
+const MINDMAP_COLOR = FILE_TYPES.mindMap.color;
 
 export const provideMindFlow = createPlugin({
   initilize(xbook) {
@@ -11,7 +14,7 @@ export const provideMindFlow = createPlugin({
       id: "mind-flow",
       label: t("apps.mindFlow"),
       showInTreeMenu: true,
-      icon: "Brain",
+      icon: { name: "Brain", color: MINDMAP_COLOR },
       match: [".mindflow.json", ".mindmap.json"],
       priority: 100,
       templates: [
@@ -20,7 +23,7 @@ export const provideMindFlow = createPlugin({
           label: t("mindFlow.newFile"),
           defaultFileName: "Untitled.mindmap.json",
           initialContent: JSON.stringify(DEFAULT_MIND_MAP_DATA, null, 2),
-          icon: "Brain",
+          icon: { name: "Brain", color: MINDMAP_COLOR },
         },
       ],
       init: (uri) => {

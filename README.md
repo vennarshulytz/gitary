@@ -38,6 +38,11 @@ For more details, see the [Gitary Companion README](browser-extension/gitary-com
 </div>
 
 <div align="center">
+  <img src="images/screenshots/gitary-screenshots-mindmap.png" alt="Gitary Mind Map" width="800"/>
+  <p><em>Mind Map - Create and edit mind maps with node editing, drag-and-drop layout, and auto-save</em></p>
+</div>
+
+<div align="center">
   <img src="images/screenshots/gitary-screenshot-welcome-markdown.png" alt="Gitary Markdown Welcome" width="800"/>
   <p><em>Notion-like Markdown editor with live preview</em></p>
 </div>

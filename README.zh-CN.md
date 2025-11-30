@@ -39,6 +39,11 @@
 </div>
 
 <div align="center">
+  <img src="images/screenshots/gitary-screenshots-mindmap.png" alt="Gitary 思维导图" width="800"/>
+  <p><em>思维导图 - 创建和编辑思维导图，支持节点编辑、拖拽布局和自动保存</em></p>
+</div>
+
+<div align="center">
   <img src="images/screenshots/gitary-screenshot-welcome-markdown.png" alt="Gitary Markdown 欢迎界面" width="800"/>
   <p><em>类 Notion 的 Markdown 编辑器，支持实时预览</em></p>
 </div>

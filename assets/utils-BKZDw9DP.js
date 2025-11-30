@@ -1,0 +1,1 @@
+import{Ft as e}from"./app-BrchTeSs.js";export{e as t};

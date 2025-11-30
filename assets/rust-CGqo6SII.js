@@ -1,1 +1,0 @@
-import{Gt as e,Wt as t}from"./monaco-CvWGZFkm.js";export{t as conf,e as language};

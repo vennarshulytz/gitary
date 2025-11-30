@@ -1,1 +1,0 @@
-import{vn as e,yn as t}from"./monaco-ovVuVNRO.js";export{e as conf,t as language};
